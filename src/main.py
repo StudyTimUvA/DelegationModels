@@ -2,6 +2,8 @@ from models.base import database, evidence
 from models.prev_party import service as prevparty_service
 from models.prev_delegation import service as prevdelegation_service
 from models.prev_delegation import evidence as prevdelegation_evidence
+from models.all_prev_delegations import evidence as all_prev_delegation_evidence
+from models.all_prev_delegations import service as allprevdelegation_service
 import time
 
 
@@ -15,6 +17,7 @@ rule3 = evidence.Rule("object2", "write", False)
 
 prev_party_service = prevparty_service.PrevPartyService()
 prev_delegation_service = prevdelegation_service.PrevDelegationService()
+all_prev_delegation_service = allprevdelegation_service.AllPrevDelegationsService()
 
 
 def simple_single_delegation_test():
@@ -135,6 +138,51 @@ def simple_double_delegation_test_prev_delegation():
     )
 
 
+def simple_double_delegation_test_all_prev_delegation():
+    """
+    Test the prev_party model with a simple double delegation,
+    data_owner -> party1 -> party2.
+    """
+    evidence3 = all_prev_delegation_evidence.Evidence(
+        identifier=db.get_next_identifier(),
+        data_owner="owner1",
+        valid_from=0,
+        valid_untill=time.time() + 1000000,
+        issuer="owner1",
+        receiver="party1",
+        rules=[rule1],
+        prev_delegations=None,
+    )
+    db.add_evidence(evidence3)
+
+    evidence4 = all_prev_delegation_evidence.Evidence(
+        identifier=db.get_next_identifier(),
+        data_owner="owner1",
+        valid_from=0,
+        valid_untill=time.time() + 1000000,
+        issuer="party1",
+        receiver="party2",
+        rules=[rule1],
+        prev_delegations=[evidence3.identifier],
+    )
+    db.add_evidence(evidence4)
+
+    # Test cases
+    assert (
+        all_prev_delegation_service.has_recursive_access(
+            db, "party1", "owner1", "object1", "read", evidence3.identifier
+        )
+        == True
+    )
+    assert (
+        all_prev_delegation_service.has_recursive_access(
+            db, "party2", "owner1", "object1", "read", evidence4.identifier
+        )
+        == True
+    )
+
+
+
 def triple_delegation_test():
     """
     Test the prev_party model with a triple delegation,
@@ -186,5 +234,6 @@ if __name__ == "__main__":
     simple_single_delegation_test()
     simple_double_delegation_test_party_id()
     simple_double_delegation_test_prev_delegation()
+    simple_double_delegation_test_all_prev_delegation()
     triple_delegation_test()
     print("All tests passed!")
