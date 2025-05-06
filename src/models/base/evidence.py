@@ -1,4 +1,6 @@
 class Rule:
+    """A rule object representing a permission or restriction on an object."""
+
     def __init__(self, object_id: str, action: str, permit: bool):
         """
         Initialize the Rule object.
@@ -14,6 +16,12 @@ class Rule:
 
 
 class Evidence:
+    """
+    Evidence class representing a piece of evidence in the system.
+    This is based on the JWT used by the iSHARE foundation, but limited to the minimum
+    fields required for the delegation implementation.
+    """
+
     def __init__(
         self,
         identifier: int,
