@@ -5,6 +5,17 @@ class Database:
     def __init__(self):
         self.evidence = {}
 
+    def get_next_identifier(self):
+        """
+        Get the next available identifier for evidence.
+
+        Returns:
+            An integer representing the next identifier.
+        """
+        if not self.evidence:
+            return 1
+        return max(self.evidence.keys()) + 1
+
     def add_evidence(self, evidence):
         """
         Add evidence to the database.
