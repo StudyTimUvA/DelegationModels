@@ -4,7 +4,14 @@ from typing import List
 
 class Database:
     def __init__(self):
-        self.evidence = {}
+        self.evidence = {
+            # id: Evidence object
+        }
+        self.revocations = [
+            # the ids
+        ]
+
+        # TODO: integrate revocations
 
     def get_next_identifier(self):
         """
@@ -71,3 +78,12 @@ class Database:
             if evidence.receiver == party_id
             and evidence.valid_from <= time.time() <= evidence.valid_untill
         ]
+    
+    def revoke(self, evidence_id: int):
+        """
+        Revoke evidence by its ID.
+
+        Params:
+            evidence_id: the ID of the evidence to be revoked.
+        """
+        self.revocations.append(evidence_id)
