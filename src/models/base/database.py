@@ -44,5 +44,6 @@ class Database:
         return [
             evidence
             for evidence in self.evidence.values()
-            if evidence.receiver == party_id and evidence.valid_from <= time.time() <= evidence.valid_untill
+            if evidence.receiver == party_id
+            and evidence.valid_from <= time.time() <= evidence.valid_untill
         ]

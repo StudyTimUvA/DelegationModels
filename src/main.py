@@ -11,6 +11,8 @@ rule1 = evidence.Rule("object1", "read", True)
 rule2 = evidence.Rule("object1", "write", True)
 rule3 = evidence.Rule("object2", "write", False)
 
+prev_party_service = service.PrevPartyService()
+
 
 def simple_single_delegation_test():
     """
@@ -40,10 +42,10 @@ def simple_single_delegation_test():
     db.add_evidence(evidence2)
 
     # Check if a party has access to an object
-    assert base_service.party_has_access_to_object(db, "party1", "object1", "read") == True
-    assert base_service.party_has_access_to_object(db, "party1", "object1", "write") == True
-    assert base_service.party_has_access_to_object(db, "party1", "object2", "write") == False
-    assert base_service.party_has_access_to_object(db, "party1", "object2", "read") == False
+    assert prev_party_service.party_has_access_to_object(db, "party1", "object1", "read") == True
+    assert prev_party_service.party_has_access_to_object(db, "party1", "object1", "write") == True
+    assert prev_party_service.party_has_access_to_object(db, "party1", "object2", "write") == False
+    assert prev_party_service.party_has_access_to_object(db, "party1", "object2", "read") == False
 
 
 def simple_double_delegation_test():
@@ -74,10 +76,18 @@ def simple_double_delegation_test():
     db.add_evidence(evidence4)
 
     # Test cases
-    assert service.has_recursive_access(db, "party1", "owner1", "object1", "read") == True
-    assert service.has_recursive_access(db, "party2", "owner1", "object1", "read") == True
-    assert service.has_recursive_access(db, "party1", "owner1", "object2", "write") == False
-    assert service.has_recursive_access(db, "party2", "owner1", "object2", "write") == False
+    assert (
+        prev_party_service.has_recursive_access(db, "party1", "owner1", "object1", "read") == True
+    )
+    assert (
+        prev_party_service.has_recursive_access(db, "party2", "owner1", "object1", "read") == True
+    )
+    assert (
+        prev_party_service.has_recursive_access(db, "party1", "owner1", "object2", "write") == False
+    )
+    assert (
+        prev_party_service.has_recursive_access(db, "party2", "owner1", "object2", "write") == False
+    )
 
 
 def triple_delegation_test():
@@ -120,8 +130,12 @@ def triple_delegation_test():
     db.add_evidence(evidence7)
 
     # Test cases
-    assert service.has_recursive_access(db, "party3", "owner1", "object1", "read") == True
-    assert service.has_recursive_access(db, "party2", "owner1", "object2", "write") == False
+    assert (
+        prev_party_service.has_recursive_access(db, "party3", "owner1", "object1", "read") == True
+    )
+    assert (
+        prev_party_service.has_recursive_access(db, "party2", "owner1", "object2", "write") == False
+    )
 
 
 if __name__ == "__main__":
