@@ -2,6 +2,7 @@ from ..base import service as BaseService
 import networkx as nx
 import time
 
+
 class OracleService(BaseService.BaseService):
     """
     Service class for managing evidence and revocations.
@@ -11,7 +12,9 @@ class OracleService(BaseService.BaseService):
     def __init__(self):
         super().__init__()
 
-    def has_recursive_access(self, db, party_id: str, owner_id: str, resource: str, action: str) -> bool:
+    def has_recursive_access(
+        self, db, party_id: str, owner_id: str, resource: str, action: str
+    ) -> bool:
         """
         Check if a party has recursive access to a resource.
 
@@ -25,16 +28,16 @@ class OracleService(BaseService.BaseService):
         #     return False
         if not nx.has_path(db.graph, owner_id, party_id):
             return False
-        
+
         paths = list(nx.all_simple_paths(db.graph, source=owner_id, target=party_id))
 
         for path in paths:
             valid_path = True
             for i in range(len(path) - 1):
-                u, v = path[i], path[i+1]
+                u, v = path[i], path[i + 1]
                 edge_data = db.graph[u][v]
                 now = time.time()
-                
+
                 if edge_data.get("expires") and edge_data["expires"] < now:
                     valid_path = False
                     break
@@ -44,8 +47,8 @@ class OracleService(BaseService.BaseService):
                 if action not in edge_data.get("actions", []):
                     valid_path = False
                     break
-            
+
             if valid_path:
                 return True
-        
+
         return False

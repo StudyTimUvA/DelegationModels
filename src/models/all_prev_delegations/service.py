@@ -34,7 +34,7 @@ class AllPrevDelegationsService(base_service.BaseService):
                 return True
 
             # Move to the previous delegation if it exists
-            if hasattr(current_evidence, 'prev_delegations') and current_evidence.prev_delegations:
+            if hasattr(current_evidence, "prev_delegations") and current_evidence.prev_delegations:
                 prev_evidence_ids = current_evidence.prev_delegations
                 next_evidence = None
 
@@ -52,6 +52,3 @@ class AllPrevDelegationsService(base_service.BaseService):
                 return False
 
         return False
-
-
-

@@ -9,7 +9,6 @@ from models.oracle import service as oracleservice
 import time
 
 
-
 parties = ["owner1", "party1", "party2", "party3"]
 
 # Create a dummy evidence database
@@ -215,18 +214,21 @@ def simple_double_delegation_test_oracle():
 
     # Test cases
     assert (
-        oracle_service.has_recursive_access(oracle_db, "party1", "owner1", "object1", "read") == True
+        oracle_service.has_recursive_access(oracle_db, "party1", "owner1", "object1", "read")
+        == True
     )
     assert (
-        oracle_service.has_recursive_access(oracle_db, "party2", "owner1", "object1", "read") == True
+        oracle_service.has_recursive_access(oracle_db, "party2", "owner1", "object1", "read")
+        == True
     )
     assert (
-        oracle_service.has_recursive_access(oracle_db, "party1", "owner1", "object2", "write") == False
+        oracle_service.has_recursive_access(oracle_db, "party1", "owner1", "object2", "write")
+        == False
     )
     assert (
-        oracle_service.has_recursive_access(oracle_db, "party2", "owner1", "object2", "write") == False
+        oracle_service.has_recursive_access(oracle_db, "party2", "owner1", "object2", "write")
+        == False
     )
-
 
 
 def triple_delegation_test():

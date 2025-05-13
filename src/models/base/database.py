@@ -48,7 +48,7 @@ class Database:
             The evidence object if found, otherwise None.
         """
         return self.evidence.get(identifier, None)
-    
+
     def get_evidences(self, ids: List[int]):
         """
         Retrieve multiple evidence objects from the database.
@@ -78,7 +78,7 @@ class Database:
             if evidence.receiver == party_id
             and evidence.valid_from <= time.time() <= evidence.valid_untill
         ]
-    
+
     def revoke(self, evidence_id: int):
         """
         Revoke evidence by its ID.

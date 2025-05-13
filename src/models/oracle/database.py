@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple
 
 from ..base import database as BaseDatabase
 
+
 class Database(BaseDatabase.Database):
     """
     Database class for managing evidence and revocations.
@@ -13,7 +14,7 @@ class Database(BaseDatabase.Database):
 
     def __init__(self):
         super().__init__()
-        
+
         self.graph = nx.DiGraph()
 
     def add_party(self, party_id: str):
@@ -27,8 +28,15 @@ class Database(BaseDatabase.Database):
             self.graph.add_node(party_id)
         else:
             raise ValueError(f"Party with ID {party_id} already exists.")
-        
-    def add_delegation(self, delegator_id: str, delegatee_id: str, resources: List[str], actions: List[str], expires: datetime):
+
+    def add_delegation(
+        self,
+        delegator_id: str,
+        delegatee_id: str,
+        resources: List[str],
+        actions: List[str],
+        expires: datetime,
+    ):
         """
         Add a delegation to the database.
 
@@ -42,8 +50,10 @@ class Database(BaseDatabase.Database):
             raise ValueError(f"Delegator with ID {delegator_id} does not exist.")
         if not self.graph.has_node(delegatee_id):
             raise ValueError(f"Delegatee with ID {delegatee_id} does not exist.")
-        
-        self.graph.add_edge(delegator_id, delegatee_id, resources=resources, expires=expires, actions=actions)
+
+        self.graph.add_edge(
+            delegator_id, delegatee_id, resources=resources, expires=expires, actions=actions
+        )
 
     def visualize_graph(self, filename: str):
         """
@@ -55,8 +65,8 @@ class Database(BaseDatabase.Database):
         pos = nx.spring_layout(self.graph, k=1)
         nx.draw(self.graph, pos, with_labels=True)
         edge_labels = {
-            (u,v): f"{','.join(d.get('resources'))}\n({','.join(d.get('actions'))})"
-            for u,v,d in self.graph.edges(data=True)
+            (u, v): f"{','.join(d.get('resources'))}\n({','.join(d.get('actions'))})"
+            for u, v, d in self.graph.edges(data=True)
         }
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels, font_size=8)
         plt.title("Oracle Delegation Graph")
