@@ -4,11 +4,19 @@ from models.prev_delegation import service as prevdelegation_service
 from models.prev_delegation import evidence as prevdelegation_evidence
 from models.all_prev_delegations import evidence as all_prev_delegation_evidence
 from models.all_prev_delegations import service as allprevdelegation_service
+from models.oracle import database as oracle_database
+from models.oracle import service as oracleservice
 import time
 
 
+
+parties = ["owner1", "party1", "party2", "party3"]
+
 # Create a dummy evidence database
 db = database.Database()
+oracle_db = oracle_database.Database()
+[oracle_db.add_party(party) for party in parties]
+
 
 # Create some dummy rules
 rule1 = evidence.Rule("object1", "read", True)
@@ -18,6 +26,7 @@ rule3 = evidence.Rule("object2", "write", False)
 prev_party_service = prevparty_service.PrevPartyService()
 prev_delegation_service = prevdelegation_service.PrevDelegationService()
 all_prev_delegation_service = allprevdelegation_service.AllPrevDelegationsService()
+oracle_service = oracleservice.OracleService()
 
 
 def simple_single_delegation_test():
@@ -182,6 +191,43 @@ def simple_double_delegation_test_all_prev_delegation():
     )
 
 
+def simple_double_delegation_test_oracle():
+    """
+    Test the oracle model with a simple double delegation,
+    data_owner -> party1 -> party2.
+    """
+    oracle_db.add_delegation(
+        delegator_id="owner1",
+        delegatee_id="party1",
+        resources=["object1"],
+        actions=["read"],
+        expires=time.time() + 1000000,
+    )
+    oracle_db.add_delegation(
+        delegator_id="party1",
+        delegatee_id="party2",
+        resources=["object1"],
+        actions=["read"],
+        expires=time.time() + 1000000,
+    )
+
+    oracle_db.visualize_graph("oracle_graph.png")
+
+    # Test cases
+    assert (
+        oracle_service.has_recursive_access(oracle_db, "party1", "owner1", "object1", "read") == True
+    )
+    assert (
+        oracle_service.has_recursive_access(oracle_db, "party2", "owner1", "object1", "read") == True
+    )
+    assert (
+        oracle_service.has_recursive_access(oracle_db, "party1", "owner1", "object2", "write") == False
+    )
+    assert (
+        oracle_service.has_recursive_access(oracle_db, "party2", "owner1", "object2", "write") == False
+    )
+
+
 
 def triple_delegation_test():
     """
@@ -235,5 +281,6 @@ if __name__ == "__main__":
     simple_double_delegation_test_party_id()
     simple_double_delegation_test_prev_delegation()
     simple_double_delegation_test_all_prev_delegation()
+    simple_double_delegation_test_oracle()
     triple_delegation_test()
     print("All tests passed!")
