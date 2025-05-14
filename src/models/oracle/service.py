@@ -1,6 +1,7 @@
 from ..base import service as BaseService
 import networkx as nx
 import time
+from typing import List
 
 
 class OracleService(BaseService.BaseService):
@@ -9,11 +10,33 @@ class OracleService(BaseService.BaseService):
     Inherits from the base Service class.
     """
 
-    def __init__(self):
-        super().__init__()
+    def add_delegation(self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float) -> int:
+        """
+        Add a delegation from party1 to party2 in the database.
 
-    def has_recursive_access(
-        self, db, party_id: str, owner_id: str, resource: str, action: str
+        Params:
+            party1: the ID of the delegator.
+            party2: the ID of the delegatee.
+            objects: a list of objects being delegated.
+            actions: a list of actions that can be performed on the objects.
+            expiry: the expiration time of the delegation.
+
+        Returns:
+            The ID of the newly added delegation.
+        """
+        if not self.db.graph.has_node(party1):
+            raise ValueError(f"Delegator with ID {party1} does not exist.")
+        if not self.db.graph.has_node(party2):
+            raise ValueError(f"Delegatee with ID {party2} does not exist.")
+
+        self.db.graph.add_edge(
+            party1, party2, resources=objects, expires=expiry, actions=actions
+        )
+
+        return None
+
+    def has_access(
+        self, party_id: str, owner_id: str, resource: str, action: str
     ) -> bool:
         """
         Check if a party has recursive access to a resource.
@@ -26,16 +49,16 @@ class OracleService(BaseService.BaseService):
         """
         # if not nx.has_path(db.graph, party_id, owner_id):
         #     return False
-        if not nx.has_path(db.graph, owner_id, party_id):
+        if not nx.has_path(self.db.graph, owner_id, party_id):
             return False
 
-        paths = list(nx.all_simple_paths(db.graph, source=owner_id, target=party_id))
+        paths = list(nx.all_simple_paths(self.db.graph, source=owner_id, target=party_id))
 
         for path in paths:
             valid_path = True
             for i in range(len(path) - 1):
                 u, v = path[i], path[i + 1]
-                edge_data = db.graph[u][v]
+                edge_data = self.db.graph[u][v]
                 now = time.time()
 
                 if edge_data.get("expires") and edge_data["expires"] < now:

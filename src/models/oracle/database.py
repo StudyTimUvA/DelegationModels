@@ -17,43 +17,16 @@ class Database(BaseDatabase.Database):
 
         self.graph = nx.DiGraph()
 
-    def add_party(self, party_id: str):
+    def add_parties(self, party_ids: List[str]):
         """
-        Add a party to the database.
+        Add multiple parties to the database.
 
         Params:
-            party_id: the ID of the party to be added.
+            party_ids: a list of party IDs to be added.
         """
-        if party_id not in self.graph:
-            self.graph.add_node(party_id)
-        else:
-            raise ValueError(f"Party with ID {party_id} already exists.")
-
-    def add_delegation(
-        self,
-        delegator_id: str,
-        delegatee_id: str,
-        resources: List[str],
-        actions: List[str],
-        expires: datetime,
-    ):
-        """
-        Add a delegation to the database.
-
-        Params:
-            delegator_id: the ID of the delegator.
-            delegatee_id: the ID of the delegatee.
-            resource: the resources being delegated.
-            expires: the expiration date of the delegation.
-        """
-        if not self.graph.has_node(delegator_id):
-            raise ValueError(f"Delegator with ID {delegator_id} does not exist.")
-        if not self.graph.has_node(delegatee_id):
-            raise ValueError(f"Delegatee with ID {delegatee_id} does not exist.")
-
-        self.graph.add_edge(
-            delegator_id, delegatee_id, resources=resources, expires=expires, actions=actions
-        )
+        for party_id in party_ids:
+            if not self.graph.has_node(party_id):
+                self.graph.add_node(party_id)
 
     def visualize_graph(self, filename: str):
         """
