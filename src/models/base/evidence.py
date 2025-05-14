@@ -1,7 +1,10 @@
+from typing import List
+
+
 class Rule:
     """A rule object representing a permission or restriction on an object."""
 
-    def __init__(self, object_id: str, action: str, permit: bool):
+    def __init__(self, object_ids: List[str], actions: List[str]):
         """
         Initialize the Rule object.
 
@@ -10,9 +13,8 @@ class Rule:
             action: the action that is allowed or denied by the rule.
             permit: a boolean indicating whether the action is permitted (True) or denied (False).
         """
-        self.object_id = object_id
-        self.action = action
-        self.permit = permit
+        self.object_ids = object_ids
+        self.actions = actions
 
 
 class Evidence:
@@ -25,12 +27,11 @@ class Evidence:
     def __init__(
         self,
         identifier: int,
-        data_owner: str,
-        valid_from: int,
-        valid_untill: int,
         issuer: str,
         receiver: str,
         rules: list[Rule],
+        valid_from: int,
+        valid_untill: int,
     ):
         """
         Initialize the Evidence object.
@@ -44,7 +45,6 @@ class Evidence:
             rules: a list of Rule objects that define the conditions of the evidence.
         """
         self.identifier = identifier
-        self.data_owner = data_owner
         self.valid_from = valid_from
         self.valid_untill = valid_untill
         self.issuer = issuer

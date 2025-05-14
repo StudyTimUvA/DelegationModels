@@ -1,5 +1,6 @@
 import time
 from typing import List
+from . import evidence
 
 
 class Database:
@@ -11,7 +12,10 @@ class Database:
             # the ids
         ]
 
-        # TODO: integrate revocations
+        self.id_counter = 0
+
+    def add_parties(self, party_ids: List[str]):
+        return
 
     def get_next_identifier(self):
         """
@@ -20,9 +24,8 @@ class Database:
         Returns:
             An integer representing the next identifier.
         """
-        if not self.evidence:
-            return 1
-        return max(self.evidence.keys()) + 1
+        self.id_counter += 1
+        return self.id_counter
 
     def add_evidence(self, evidence):
         """
@@ -61,7 +64,7 @@ class Database:
         """
         return [self.evidence.get(identifier) for identifier in ids if identifier in self.evidence]
 
-    def get_evidence_by_party(self, party_id: str):
+    def get_evidence_by_party(self, party_id: str) -> List[evidence.Evidence]:
         """
         Retrieve all currently relevant evidence for a specific party.
         Relevant evidence is defined as evidence that is valid at the current time.

@@ -10,7 +10,9 @@ class OracleService(BaseService.BaseService):
     Inherits from the base Service class.
     """
 
-    def add_delegation(self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float) -> int:
+    def add_delegation(
+        self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float
+    ) -> int:
         """
         Add a delegation from party1 to party2 in the database.
 
@@ -29,15 +31,11 @@ class OracleService(BaseService.BaseService):
         if not self.db.graph.has_node(party2):
             raise ValueError(f"Delegatee with ID {party2} does not exist.")
 
-        self.db.graph.add_edge(
-            party1, party2, resources=objects, expires=expiry, actions=actions
-        )
+        self.db.graph.add_edge(party1, party2, resources=objects, expires=expiry, actions=actions)
 
         return None
 
-    def has_access(
-        self, party_id: str, owner_id: str, resource: str, action: str
-    ) -> bool:
+    def has_access(self, party_id: str, owner_id: str, resource: str, action: str) -> bool:
         """
         Check if a party has recursive access to a resource.
 
