@@ -6,7 +6,6 @@ from models.all_prev_delegations import evidence as all_prev_delegation_evidence
 from models.all_prev_delegations import service as allprevdelegation_service
 from models.oracle import database as oracle_database
 from models.oracle import service as oracleservice
-import time
 
 import tests.main as tests
 
@@ -29,3 +28,9 @@ if __name__ == "__main__":
     )
     results = prev_delegation_tester.run_tests(verbose=False)
     prev_delegation_tester.print_test_results(results)
+
+    all_prev_delegation_tester = tests.DelegationModelTests(
+        database.Database, allprevdelegation_service.AllPrevDelegationsService
+    )
+    results = all_prev_delegation_tester.run_tests(verbose=False)
+    all_prev_delegation_tester.print_test_results(results)

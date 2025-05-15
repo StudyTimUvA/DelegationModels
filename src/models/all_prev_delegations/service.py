@@ -1,54 +1,131 @@
 from ..base import service as base_service
 from typing import List
+from . import evidence as all_prev_delegation_evidence
+from ..base import evidence
 
 
 class AllPrevDelegationsService(base_service.BaseService):
-    def has_recursive_access(
-        self,
-        db,
-        party: str,
-        data_owner: str,
-        object: str,
-        action: str,
-        final_evidence_id: int,
-    ) -> bool:
+    def _get_prev_delegation(
+        self, party_id: str, object_ids: List[str], actions: List[str]
+    ) -> all_prev_delegation_evidence.Evidence:
         """
-        Check if a party has access by iteratively checking each piece of evidence.
+        Get the previous delegation for a party and object.
         """
-        last_evidence = db.get_evidence(final_evidence_id)
-        if not last_evidence:
-            return False
+        # TODO: format this horrible code
+        for evidence in self.db.get_evidence_by_party(party_id):
+            rule_objects = [
+                {object_id: rule.actions}
+                for rule in evidence.rules
+                for object_id in rule.object_ids
+            ]
+            new = {}
+            for r in rule_objects:
+                for k, v in r.items():
+                    if k not in new:
+                        new[k] = v
+                    else:
+                        new[k].extend(v)
 
-        # Start with the final evidence and iterate through the chain of delegations
-        current_evidence = last_evidence
-        while current_evidence:
-            # Check if the current evidence permits the action on the object
-            if not any(
-                rule.object_id == object and rule.action == action and rule.permit
-                for rule in current_evidence.rules
+            # check if the object_ids and actions are in the evidence
+            if all(obj in new for obj in object_ids) and all(
+                act in new[obj] for obj in object_ids for act in actions
             ):
-                return False
+                return evidence
 
-            # If the current evidence's issuer is the data owner, access is valid
-            if current_evidence.issuer == data_owner:
+        return None
+
+    def _is_evidence_for_search(
+        self,
+        evidence: evidence.Evidence,
+        object_id: str,
+        action: str,
+    ):
+        """
+        Check if the evidence is for the search.
+        """
+        for rule in evidence.rules:
+            if object_id in rule.object_ids and action in rule.actions:
                 return True
 
-            # Move to the previous delegation if it exists
-            if hasattr(current_evidence, "prev_delegations") and current_evidence.prev_delegations:
-                prev_evidence_ids = current_evidence.prev_delegations
-                next_evidence = None
+        return False
 
-                for evidence_id in prev_evidence_ids:
-                    evidence = db.get_evidence(evidence_id)
-                    if evidence and evidence.receiver == current_evidence.issuer:
-                        next_evidence = evidence
-                        break
+    def has_access(self, delegatee: str, data_owner: str, object: str, action: str) -> bool:
+        """
+        Check if a delegatee has access to an object based on the evidence in the database.
 
-                if not next_evidence:
-                    return False
+        Params:
+            delegatee: the identifier of the delegatee.
+            data_owner: the identifier of the data owner.
+            object: the identifier of the object.
+            action: the action to be performed on the object.
 
-                current_evidence = next_evidence
-            else:
-                return False
+        Returns:
+            True if the delegatee has access to the object, False otherwise.
+        """
+        evidence_list = self.db.get_evidence_by_party(delegatee)
+
+        for evidence in evidence_list:
+            if evidence.identifier in self.db.revocations:
+                continue
+
+            if self._is_evidence_for_search(evidence, object, action):
+                if evidence.issuer == data_owner:
+                    return True
+
+                for prev_delegation in evidence.prev_delegations:
+                    if prev_delegation.identifier in self.db.revocations:
+                        continue
+
+                    if self._is_evidence_for_search(prev_delegation, object, action):
+                        if prev_delegation.issuer == data_owner:
+                            return True
 
         return False
+
+    def add_delegation(
+        self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float
+    ) -> int:
+        """
+        Add a delegation from party1 to party2 in the database.
+
+        Params:
+            party1: the ID of the delegator.
+            party2: the ID of the delegatee.
+            objects: a list of objects being delegated.
+            actions: a list of actions that can be performed on the objects.
+            expiry: the expiration time of the delegation.
+
+        Returns:
+            The ID of the newly added delegation.
+        """
+        prev_delegation = self._get_prev_delegation(party1, objects, actions)
+
+        rule = evidence.Rule(
+            object_ids=objects,
+            actions=actions,
+        )
+        evid = all_prev_delegation_evidence.Evidence(
+            identifier=self.db.get_next_identifier(),
+            issuer=party1,
+            receiver=party2,
+            rules=[rule],
+            valid_from=0,
+            valid_untill=expiry,
+            prev_delegations=(
+                prev_delegation.prev_delegations + [prev_delegation] if prev_delegation else []
+            ),
+        )
+        self.db.add_evidence(evid)
+        return evid.identifier
+
+    def revoke_delegation(self, delegation_id: int) -> bool:
+        """
+        Revoke a delegation in the database.
+
+        Params:
+            delegation_id: the ID of the delegation to be revoked.
+
+        Returns:
+            True if the revocation was successful, False otherwise.
+        """
+        self.db.revocations.append(delegation_id)

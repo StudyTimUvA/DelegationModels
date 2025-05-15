@@ -33,7 +33,6 @@ class PrevDelegationService(base_service.BaseService):
         return None
 
     def add_delegation(self, party1, party2, objects, actions, expiry):
-        # TODO get the id of the previous delegation aka how did party1 get the access
         prev_delegation = self._get_prev_delegation(party1, objects, actions)
 
         rule = evidence.Rule(

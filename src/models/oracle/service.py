@@ -31,9 +31,12 @@ class OracleService(BaseService.BaseService):
         if not self.db.graph.has_node(party2):
             raise ValueError(f"Delegatee with ID {party2} does not exist.")
 
-        self.db.graph.add_edge(party1, party2, resources=objects, expires=expiry, actions=actions)
+        edge_id = self.db.get_next_identifier()
+        self.db.graph.add_edge(
+            party1, party2, id=edge_id, resources=objects, expires=expiry, actions=actions
+        )
 
-        return None
+        return edge_id
 
     def has_access(self, party_id: str, owner_id: str, resource: str, action: str) -> bool:
         """
@@ -72,4 +75,20 @@ class OracleService(BaseService.BaseService):
             if valid_path:
                 return True
 
+        return False
+
+    def revoke_delegation(self, edge_id: int) -> bool:
+        """
+        Revoke a delegation by edge ID.
+
+        Params:
+            edge_id: the ID of the edge to revoke.
+
+        Returns:
+            True if the revocation was successful, False otherwise.
+        """
+        for u, v, data in self.db.graph.edges(data=True):
+            if data["id"] == edge_id:
+                self.db.graph.remove_edge(u, v)
+                return True
         return False
