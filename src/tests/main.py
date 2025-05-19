@@ -353,7 +353,7 @@ class DelegationModelTests:
             "party1",
             ["object1"],
             ["read"],
-            time.time() + 1000000,
+            time.time() + 100000,
         )
         self.service.add_delegation(
             "party1",

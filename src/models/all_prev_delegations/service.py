@@ -11,24 +11,19 @@ class AllPrevDelegationsService(base_service.BaseService):
         """
         Get the previous delegation for a party and object.
         """
-        # TODO: format this horrible code
         for evidence in self.db.get_evidence_by_party(party_id):
-            rule_objects = [
-                {object_id: rule.actions}
-                for rule in evidence.rules
-                for object_id in rule.object_ids
-            ]
-            new = {}
-            for r in rule_objects:
-                for k, v in r.items():
-                    if k not in new:
-                        new[k] = v
+            # Build a mapping from object_id to a list of actions
+            object_actions = {}
+            for rule in evidence.rules:
+                for object_id in rule.object_ids:
+                    if object_id not in object_actions:
+                        object_actions[object_id] = list(rule.actions)
                     else:
-                        new[k].extend(v)
+                        object_actions[object_id].extend(rule.actions)
 
-            # check if the object_ids and actions are in the evidence
-            if all(obj in new for obj in object_ids) and all(
-                act in new[obj] for obj in object_ids for act in actions
+            # Check if all object_ids are present and all actions are allowed for each object
+            if all(obj in object_actions for obj in object_ids) and all(
+                act in object_actions[obj] for obj in object_ids for act in actions
             ):
                 return evidence
 
@@ -83,7 +78,12 @@ class AllPrevDelegationsService(base_service.BaseService):
         return False
 
     def add_delegation(
-        self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float
+        self,
+        party1: str,
+        party2: str,
+        objects: List[str],
+        actions: List[str],
+        expiry: float,
     ) -> int:
         """
         Add a delegation from party1 to party2 in the database.
