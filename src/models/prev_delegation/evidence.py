@@ -1,4 +1,3 @@
-from ..base import service as base_service
 from ..base import evidence as base_evidence
 
 

@@ -48,13 +48,12 @@ class OracleService(BaseService.BaseService):
         Returns:
             True if the party has recursive access, False otherwise.
         """
-        # if not nx.has_path(db.graph, party_id, owner_id):
-        #     return False
+        # Check if there is any path from the owner to the party
         if not nx.has_path(self.db.graph, owner_id, party_id):
             return False
 
+        # There is a path, now check if any of the paths contain the resource and action
         paths = list(nx.all_simple_paths(self.db.graph, source=owner_id, target=party_id))
-
         for path in paths:
             valid_path = True
             for i in range(len(path) - 1):

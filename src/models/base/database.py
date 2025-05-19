@@ -52,18 +52,6 @@ class Database:
         """
         return self.evidence.get(identifier, None)
 
-    def get_evidences(self, ids: List[int]):
-        """
-        Retrieve multiple evidence objects from the database.
-
-        Params:
-            ids: a list of IDs of the evidence to be retrieved.
-
-        Returns:
-            A list of evidence objects.
-        """
-        return [self.evidence.get(identifier) for identifier in ids if identifier in self.evidence]
-
     def get_evidence_by_party(self, party_id: str) -> List[evidence.Evidence]:
         """
         Retrieve all currently relevant evidence for a specific party.

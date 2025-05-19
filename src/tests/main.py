@@ -15,7 +15,16 @@ class DelegationModelTests:
             "party4",
         ]
 
-    def run_tests(self, verbose=True):
+    def run_tests(self, verbose=True) -> dict:
+        """
+        Run all tests in the class and return the results.
+
+        Params:
+            verbose: If True, print the test results.
+
+        Returns:
+            A dictionary with the test names as keys and the results as values.
+        """
         tests = [
             (name, test_method)
             for name, test_method in inspect.getmembers(self, predicate=inspect.ismethod)
@@ -45,7 +54,13 @@ class DelegationModelTests:
 
         return results
 
-    def print_test_results(self, results):
+    def print_test_results(self, results) -> None:
+        """
+        Print the test results in a formatted table.
+
+        Params:
+            results: A dictionary with the test names as keys and the results as values.
+        """
         check = "✓"
         cross = "✗"
 
