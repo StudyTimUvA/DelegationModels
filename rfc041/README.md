@@ -36,24 +36,24 @@ The following principles are relevant:
 Below, several delegation models are described, followed by a comparative table:
 
 **1. Recursively build path - Previous Party ID**
-This model, which is the primary focus of this RFC's proposed change and implementation, involves each piece of delegation evidence storing the identifier of the delegating party (the "previous party"). When validation is required, the Authorization Registry (AR) recursively checks if a valid delegation path can be reconstructed from the access seeker back to the ultimate data owner. This is achieved by looking up the delegation evidence issued by the `prev_party` to the current party, and then repeating the process for that `prev_party`.
-This approach offers flexibility, particularly in scenarios with parallel delegation paths, where multiple delegations can converge. For instance, a party might receive rights from two different sources and then delegate a combination of these rights. Revocation of one upstream delegation does not necessarily invalidate downstream delegations if an alternative valid path still exists for the delegating party. Privacy implications are generally minimal, as the delegatee is usually aware of their direct delegator. For cross-AR validation, the evidence should also include the AR identifier where the delegation was issued. Revocation is typically handled by maintaining a list of revoked delegation identifiers, which must be checked during path validation.
+This model involves each piece of delegation evidence storing the identifier of the delegating party (the "previous party"). When validation is required, the Authorization Registry (AR) recursively checks if a valid delegation path can be reconstructed from the access seeker back to the ultimate data owner. This is achieved by looking up the delegation evidence issued to the `prev_party` to the current party, and then repeating the process for that `prev_party`.
+This approach offers flexibility, particularly in scenarios with parallel delegation paths, where multiple delegations can converge. For instance, a party might receive rights from two different sources and then delegate a combination of these rights. Revocation of one upstream delegation does not necessarily invalidate downstream delegations if an alternative valid path still exists for the delegating party. Privacy implications are generally minimal, as the delegatee is usually aware of their direct delegator. For cross-AR validation, the evidence should also include the AR identifier where the delegation was issued. Revocation can be handled by maintaining a list of revoked delegation identifiers, which must be checked during path validation.
 
 **2. Recursively build path - Previous Delegation ID**
 This model extends delegation evidence with a reference to the identifier of the preceding delegation evidence in the chain. This allows reconstruction and validation of the full path by recursively tracing back to the data owner. Each delegation's validity and revocation status (e.g., by checking against a revocation register) are verified.
-This model can support distributed or federated authorization environments if delegation identifiers are globally unique (e.g., including registry prefixes). However, if a specific delegation in the chain is revoked, any subsequent delegations relying solely on that specific link become invalid.
+This model can support cross-AR validation if the delegation ID include registry prefixes. However, if a specific delegation in the chain is revoked, any subsequent delegations relying on that specific link become invalid.
 
-**3. Token-based model**
+<!-- **3. Token-based model**
 This model uses a single token that is passed along the delegation chain. The token might be validated against a central repository that holds its associated access rights, or the token itself could encapsulate these rights and be cryptographically signed.
-Its main advantage is simplicity. However, it has significant security drawbacks: the token is not bound to a specific delegatee, allowing free transfer without oversight. This makes it difficult to enforce fine-grained constraints or track the delegation path. Revocation is coarse, typically at the token level, affecting all holders.
+Its main advantage is simplicity. However, it has significant security drawbacks: the token is not bound to a specific delegatee, allowing free transfer without oversight. This makes it difficult to enforce fine-grained constraints or track the delegation path. Revocation is coarse, typically at the token level, affecting all holders. -->
 
-**4. Concatenation model**
+**3. Concatenation model**
 This model aims to reduce lookup overhead by embedding more chain information within the delegation evidence.
     *   **Full Concatenation:** Each new delegation contains the complete sequence of all previous delegation evidence objects. This makes validation very efficient as the entire path is self-contained. However, it significantly increases evidence size with chain length and poses privacy concerns, as every participant sees all upstream delegation details.
     *   **ID-only Concatenation:** To mitigate the issues of full concatenation, this variant includes only the identifiers of previous delegations (possibly prefixed with the issuing AR's ID). This still allows chain reconstruction without recursive querying but limits information exposure. Privacy is improved as only the position in the chain and identifiers are revealed, not full upstream details unless resolved.
-Both variants are compatible with multi-registry environments. The `delegation_path` attribute in the current iSHARE framework aligns with this ID-only concatenation model.
+Both variants are compatible with multi-registry environments. The `delegation_path` attribute in the current iSHARE framework aligns with these concatenation models.
 
-**5. External storage model**
+**4. External storage model**
 Here, the delegation token or evidence is a unique identifier referencing externally stored, detailed delegation evidence. This external evidence contains information about previous parties or delegations in the path.
 This decouples the token from the full chain details, enhancing privacy and scalability as parties only access necessary information. A key feature is support for path abstraction; if an intermediate delegation is revoked, the system can potentially recompute or discover an alternative valid path, improving fault tolerance. Validation involves backend lookups to the trusted external storage.
 
@@ -63,16 +63,15 @@ The following table summarizes these scenarios:
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1. Recursively build path - Previous Party ID      | Each delegation stores previous party's ID. AR recursively validates path. Supports parallel paths. (RFC's primary proposal, using `prev_party` from JWT).                                                          | Medium/High (Shipper unaware. Intermediates know direct delegator. AR validates full path.) | Medium (Recursive calls to AR(s); DB lookups. Optimized if within a single AR.)                                                          | Good (Flexible. Revocation of one path doesn't break alternatives. Requires checking revocation list for individual delegations.)                                                 |
 | 2. Recursively build path - Previous Delegation ID | Each delegation references ID of previous delegation evidence. AR recursively traces and validates chain.                                                                                                             | High (Similar to Previous Party ID; direct predecessor ID known.)                | Medium (Recursive calls. Each step validated, including revocation status.)                                                             | Good (Supports. Revocation list for delegation IDs needed. Revocation of a link propagates to further links)                                                                     |
-| 3. Token-based model                               | Single token passed along chain, validated centrally or self-contained. Not bound to delegatee.                                                                                                                     | High (Path difficult to track, Shipper likely unaware of specific subcontractors.)    | Variable (High if self-contained; dependent on central repository performance.)                                                         | Poor (Coarse revocation at token level, affecting all holders.)                                                                                                                    |
-| 4. Concatenation model (Full Evidence)             | Each delegation contains the complete sequence of previous delegation evidence. (`previous_steps` attribute mentioned before)                                                                                                | Low/medium (Entire chain information exposed to participants holding the evidence, though information may be limited.)              | Very High (Local validation once evidence obtained.)                                                                                    | Medium (Revocation complex; if one link revoked, entire concatenated evidence potentially invalid unless re-issued or segments checkable.)                                    |
-| 5. Concatenation model (ID-only)                   | Each delegation includes identifiers of previous delegations. (`delegation_path` attribute in iSHARE)                                                                                                                 | Medium (Position in chain and IDs known; details not exposed without resolution.)     | High (Chain structure present. Validation efficient but may need to check revocation status of all IDs.)                                | Medium (Similar to Full Concatenation. Revocation of one ID invalidates chain. Requires checking revocation list for all IDs.)                                                   |
-| 6. External storage model                          | Delegation token references externally stored delegation evidence/path. Path can be dynamically recomputed.                                                                                                       | Very High (Parties see only necessary info; full chain details not directly exposed.) | Variable (Dependent on external storage retrieval and path computation logic.)                                                          | Very Good (Supports dynamic path re-computation on revocation, allows alternative paths, good fault tolerance.)                                                                    |
-
+| 3. Concatenation model (Full Evidence)             | Each delegation contains the complete sequence of previous delegation evidence. (`previous_steps` attribute mentioned before)                                                                                                | Low/medium (Entire chain information exposed to participants holding the evidence, though information may be limited.)              | Very High (Local validation once evidence obtained.)                                                                                    | Medium (Revocation complex; if one link revoked, entire concatenated evidence potentially invalid unless re-issued or segments checkable.)                                    |
+| 4. Concatenation model (ID-only)                   | Each delegation includes identifiers of previous delegations. (`delegation_path` attribute in iSHARE)                                                                                                                 | Medium (Position in chain and IDs known; details not exposed without resolution.)     | High (Chain structure present. Validation efficient but may need to check revocation status of all IDs.)                                | Medium (Similar to Full Concatenation. Revocation of one ID invalidates chain. Requires checking revocation list for all IDs.)                                                   |
+| 5. External storage model                          | Delegation token references externally stored delegation evidence/path. Path can be dynamically recomputed.                                                                                                       | Very High (Parties see only necessary info; full chain details not directly exposed.) | Variable (Dependent on external storage retrieval and path computation logic.)                                                          | Very Good (Supports dynamic path re-computation on revocation, allows alternative paths, good fault tolerance.)                                                                    |
+<!-- | 3. Token-based model                               | Single token passed along chain, validated centrally or self-contained. Not bound to delegatee.                                                                                                                     | High (Path difficult to track, Shipper likely unaware of specific subcontractors.)    | Variable (High if self-contained; dependent on central repository performance.)                                                         | Poor (Coarse revocation at token level, affecting all holders.)                                                                                                                    | -->
 <!-- | 4. Validation on issuing only model                | Per-delegation evidence issued and validated by central authority at issuance. Bound to specific party.                                                                                                             | High (Shipper unaware of subcontracting beyond direct delegatee.)                     | Medium (Validation at issuance. Retrieval of existing evidence is direct.)                                                              | Poor (Inability to propagate revocations downstream effectively.)                                                                                                                  | -->
 
 ### Example use cases
 
-Clarify the RFC by describing example use cases in which the change is used in practice.
+An example use case of this RFC is in logistics, such as the one shown in the image at the start of this RFC.
 
 ## Impact on the ecosystem
 
@@ -93,42 +92,15 @@ The table above describes the required impact, it is possible however based on t
 
 ## Impact iSHARE Foundation (Scheme Owner)
 
-Describe the impact of the RFC on all the assets of iSHARE. Use the following list as a guideline:
+The proposed changes in RFC041 will impact the iSHARE Foundation and its assets as follows:
 
-- The iSHARE Trust Framework: [https://ishareworks.atlassian.net/wiki/spaces/IS/](https://ishareworks.atlassian.net/wiki/spaces/IS/)
-- The developer documentation (as an extension of the iSHARE Trust Framework): [https://dev.ishare.eu/](https://dev.ishare.eu/)
-- Example implementation in [Postman Collections](https://dev.ishare.eu/demo-and-testing/postman.html).
-- The iSHARE Satellite codebase as developed on: [https://github.com/iSHAREScheme/iSHARESatellite](https://github.com/iSHAREScheme/iSHARESatellite)
-- The implementation of the iSHARE satellite for iSHARE as the scheme owner on [https://sat.ishare.eu](https://sat.ishare.eu) and [https://sat.uat.isharetest.net](https://sat.uat.isharetest.net)
-- The public website [https://www.ishare.eu](https://www.ishare.eu)
-- iSHARE Community forum: [https://forum.ishare.eu/](https://forum.ishare.eu/)
-- Internal documentation: [https://drive.google.com/drive/](https://drive.google.com/drive/)
-- Authorization Registry test implementation: [https://ar.isharetest.net/](https://ar.isharetest.net/)
-- The Conformance Test Tool: [https://ctt.isharetest.net/admin/account/login](https://ctt.isharetest.net/admin/account/login), tests listed on [https://ctt.isharetest.net/admin/test-cases](https://ctt.isharetest.net/admin/test-cases)
-- iSHARE test satellite (used for conformance testing): [https://scheme.isharetest.net/](https://scheme.isharetest.net/)
-- iSHARE test certificate authority: [EJBCA Public Web (isharetest.net)](https://ca7.isharetest.net:8442/ejbca/)
+- **iSHARE Trust Framework:** The framework will need updates to describe the new delegation path models, evidence structures, and validation requirements.
+- **Developer Documentation:** Technical documentation and examples must be extended to cover the new delegation models and validation logic.
+- **Reference Implementations (Satellite, Authorization Registry):** Updates are required to support the new evidence structures and validation flows.
+- **Test Tools and Conformance:** Test cases and conformance tools should be updated to verify correct implementation of the new models.
+
+These updates will ensure the iSHARE ecosystem remains consistent, interoperable, and aligned with the improved delegation path handling proposed in this RFC.
 
 ## Implementation
 
-### Dummy Algorithm for `prev_party` Model
-
-The `prev_party` model is designed to recursively check if a party has access to an object by finding a path from the receiver to the data owner. This can be fully implemented on the authorization registry such that no (or little) changes are required of any other participants. Below is a high-level dummy algorithm that outlines the steps involved in this process:
-
-1. **Initialize Visited Set**: Start with an empty set to keep track of visited parties to avoid cycles.
-
-2. **Direct Access Check**:
-   - Retrieve all evidence associated with the current party from the database.
-   - For each piece of evidence, check if it contains a rule that permits the required action on the specified object.
-   - If the data owner matches and the rule permits the action, return `True`.
-
-3. **Recursive Access Check**:
-   - If direct access is not found, recursively check if the issuer of the evidence (the `prev_party`) has access to the object.
-   - Pass the updated visited set to avoid revisiting parties.
-
-4. **Cycle Detection**:
-   - If the current party is already in the visited set, return `False` to prevent infinite loops.
-
-5. **Return Result**:
-   - If no path is found, return `False`.
-
-This implementation ensures that the delegation chain is traversed efficiently while avoiding cycles.
+TBA
