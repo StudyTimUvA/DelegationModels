@@ -1,0 +1,35 @@
+{
+    "tests": {
+        "basic_delegations": {
+            "test_single_delegation": true,
+            "test_triple_delegation": true
+        },
+        "flexibility": {
+            "test_parallel_paths": true,
+            "test_partial_delegations": true,
+            "test_changing_paths": true
+        },
+        "revocation": {
+            "test_simple_revocation": true,
+            "test_triple_delegation_final_revoked": true,
+            "test_triple_delegation_first_revoked_propagation": false
+        },
+        "other": {
+            "test_invalid_delegation": false
+        }
+    },
+    "performance": {
+        "5": "0.000002",
+        "10": "0.000002",
+        "50": "0.000003",
+        "100": "0.000004",
+        "250": "0.000007",
+        "500": "0.000014"
+    },
+    "summary": {
+        "basic_delegations": true,
+        "flexibility": true,
+        "revocation": false,
+        "other": false
+    }
+}

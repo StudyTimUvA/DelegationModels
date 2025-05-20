@@ -1,5 +1,6 @@
 import time
 import inspect
+import json
 
 
 class DelegationModelTests:
@@ -15,6 +16,64 @@ class DelegationModelTests:
             "party3",
             "party4",
         ]
+
+    def generate_report(self, filename: str) -> None:
+        """
+        Generate a report of the test results and save it to a json file.
+        Params:
+            filename: The name of the file to save the report to.
+        """
+
+        tests = {
+            "basic_delegations": [self.test_single_delegation, self.test_triple_delegation],
+            "flexibility": [
+                self.test_parallel_paths,
+                self.test_partial_delegations,
+                self.test_changing_paths,
+            ],
+            "revocation": [
+                self.test_simple_revocation,
+                self.test_triple_delegation_final_revoked,
+                self.test_triple_delegation_first_revoked_propagation,
+            ],
+        }
+        tests["other"] = [
+            test_method
+            for name, test_method in inspect.getmembers(self, predicate=inspect.ismethod)
+            if name.startswith("test_")
+            and test_method not in [test for test_list in tests.values() for test in test_list]
+        ]
+
+        results = {}
+        for category, test_list in tests.items():
+            results[category] = {}
+            for test_method in test_list:
+                test_name = test_method.__name__
+                self.service.db = self.db_class()
+                self.service.db.add_parties(self.parties)
+
+                try:
+                    test_method()
+                    results[category][test_name] = True
+                except Exception as e:
+                    results[category][test_name] = False
+        results = {
+            "tests": results
+        }
+
+        # Performance test
+        performance_results = self.get_performance_values()
+        results["performance"] = performance_results
+
+        # Add a summary per category
+        results["summary"] = {}
+        for category, test_results in results["tests"].items():
+            all_passed = all(test_results.values())
+            results["summary"][category] = all_passed
+
+        with open(filename, "w") as f:
+            json.dump(results, f, indent=4)
+
 
     def run_tests(self, verbose=True) -> dict:
         """
@@ -403,7 +462,7 @@ class DelegationModelTests:
             self.service.has_access("party3", "owner1", "object1", "read") == True
         ), "party2 should have read access to object1 in DO->p2->p3, when revoked"
 
-    def test_performance(self):
+    def get_performance_values(self):
         """
         Test the performance of the delegation model with a growing number of parties and delegations.
         This task focusses on the performance of the has_access method.
@@ -411,10 +470,12 @@ class DelegationModelTests:
 
         numbers_of_delegations = [5, 10, 50, 100, 250, 500]
         last_party_number = 0
+        times_taken = []
 
         self.service.db.add_parties(
             [f"party{i}" for i in range(0, max(numbers_of_delegations) + 1)]
         )
+
 
         for idx, number_of_delegations in enumerate(numbers_of_delegations):
             number_to_add = number_of_delegations - (
@@ -446,7 +507,6 @@ class DelegationModelTests:
             assert (
                 elapsed_time < self.performance_time_limit
             ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
+            times_taken.append(format(elapsed_time, ".6f"))
 
-            print(
-                f"Performance test with {number_of_delegations} delegations took {elapsed_time:.6f} seconds."
-            )
+        return dict(zip(numbers_of_delegations, times_taken))
