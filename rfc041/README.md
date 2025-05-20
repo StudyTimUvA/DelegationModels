@@ -86,7 +86,7 @@ The following table lists the impact of this RFC on the formal iSHARE roles (exc
 | Identity Provider         | no                | no                                                 |
 | Identity Broker           | no                | no                                                 |
 | Data Space Administrator  | no                | no                                                 |
-| Satellite                 | no                | no                                                 |
+| Satellite                 | maybe             | maybe                                              |
 
 The table above describes the required impact, it is possible however based on the details that an impact can be created on other roles as well. E.g. to support multiple authorization registries in a delegation chain, the id of the authorization registry can be added the evidence, or it can be queried from a satellite [creating an impact on the satellite].
 
