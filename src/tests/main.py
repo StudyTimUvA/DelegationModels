@@ -4,10 +4,11 @@ import json
 
 
 class DelegationModelTests:
-    def __init__(self, db_class, service_class, performance_time_limit=0.1):
+    def __init__(self, db_class, service_class, performance_time_limit=0.1, performance_test_count=10):
         self.db_class = db_class
         self.service = service_class(self.db_class())
         self.performance_time_limit = performance_time_limit
+        self.performance_test_count = performance_test_count
 
         self.parties = [
             "owner1",
@@ -492,21 +493,28 @@ class DelegationModelTests:
                 )
                 last_party_number += 1
 
-            start_time = time.time()
-            success = self.service.has_access(
-                f"party{last_party_number - 1}",
-                f"party0",
-                "object1",
-                "read",
-            )
-            end_time = time.time()
+            elapsed_avg = 0
+            for _ in range(self.performance_test_count):
+                start_time = time.time()
+                success = self.service.has_access(
+                    f"party{last_party_number - 1}",
+                    f"party0",
+                    "object1",
+                    "read",
+                )
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                elapsed_avg += elapsed_time
+
+                # If a single test takes longer than the performance time limit, fail the test
+                assert (
+                    elapsed_time < self.performance_time_limit
+                ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
+                
+            elapsed_avg /= self.performance_test_count
 
             assert success, "Performance test failed, as access was expected, but failed."
 
-            elapsed_time = end_time - start_time
-            assert (
-                elapsed_time < self.performance_time_limit
-            ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
-            times_taken.append(format(elapsed_time, ".6f"))
+            times_taken.append(format(elapsed_avg, ".6f"))
 
         return dict(zip(numbers_of_delegations, times_taken))
