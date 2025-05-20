@@ -3,9 +3,10 @@ import inspect
 
 
 class DelegationModelTests:
-    def __init__(self, db_class, service_class):
+    def __init__(self, db_class, service_class, performance_time_limit=0.1):
         self.db_class = db_class
         self.service = service_class(self.db_class())
+        self.performance_time_limit = performance_time_limit
 
         self.parties = [
             "owner1",
@@ -401,3 +402,51 @@ class DelegationModelTests:
         assert (
             self.service.has_access("party3", "owner1", "object1", "read") == True
         ), "party2 should have read access to object1 in DO->p2->p3, when revoked"
+
+    def test_performance(self):
+        """
+        Test the performance of the delegation model with a growing number of parties and delegations.
+        This task focusses on the performance of the has_access method.
+        """
+
+        numbers_of_delegations = [5, 10, 50, 100, 250, 500]
+        last_party_number = 0
+
+        self.service.db.add_parties(
+            [f"party{i}" for i in range(0, max(numbers_of_delegations) + 1)]
+        )
+
+        for idx, number_of_delegations in enumerate(numbers_of_delegations):
+            number_to_add = number_of_delegations - (
+                numbers_of_delegations[idx - 1] if idx > 0 else 0
+            )
+
+            for _ in range(number_to_add):
+                self.service.add_delegation(
+                    f"party{last_party_number}",
+                    f"party{last_party_number + 1}",
+                    [f"object1"],
+                    ["read"],
+                    time.time() + 1000000,
+                )
+                last_party_number += 1
+
+            start_time = time.time()
+            success = self.service.has_access(
+                f"party{last_party_number - 1}",
+                f"party0",
+                "object1",
+                "read",
+            )
+            end_time = time.time()
+
+            assert success, "Performance test failed, as access was expected, but failed."
+
+            elapsed_time = end_time - start_time
+            assert (
+                elapsed_time < self.performance_time_limit
+            ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
+
+            print(
+                f"Performance test with {number_of_delegations} delegations took {elapsed_time:.6f} seconds."
+            )
