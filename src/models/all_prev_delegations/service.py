@@ -59,21 +59,33 @@ class AllPrevDelegationsService(base_service.BaseService):
         """
         evidence_list = self.db.get_evidence_by_party(delegatee)
 
+        # TODO: check if this model is working correctly
         for evidence in evidence_list:
             if evidence.identifier in self.db.revocations:
                 continue
 
+            last_authorizes = None
             if self._is_evidence_for_search(evidence, object, action):
-                if evidence.issuer == data_owner:
+                if evidence.issuer == data_owner and evidence.receiver == delegatee:
                     return True
 
+                found_revocation = False
                 for prev_delegation in evidence.prev_delegations:
                     if prev_delegation.identifier in self.db.revocations:
-                        continue
+                        found_revocation = True
+                        break
 
                     if self._is_evidence_for_search(prev_delegation, object, action):
                         if prev_delegation.issuer == data_owner:
-                            return True
+                            last_authorizes = prev_delegation.receiver
+
+                        elif prev_delegation.issuer == last_authorizes:
+                            last_authorizes = prev_delegation.receiver
+                        else:
+                            break # Found invalid delegation link
+
+                if prev_delegation.receiver == evidence.issuer and not found_revocation:
+                    return True
 
         return False
 

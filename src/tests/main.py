@@ -3,8 +3,13 @@ import inspect
 import json
 
 
+# TODO: Remove the database parameter, and instead put this directly in the services
+# TODO: Add a test for multiple databases
+# TODO: Extend the performance test to include more than just the relevant delegations
+
+
 class DelegationModelTests:
-    def __init__(self, db_class, service_class, performance_time_limit=0.1, performance_test_count=10):
+    def __init__(self, db_class, service_class, performance_time_limit=0.1, performance_test_count=15):
         self.db_class = db_class
         self.service = service_class(self.db_class())
         self.performance_time_limit = performance_time_limit
