@@ -21,10 +21,10 @@ class DelegationModelTests:
     def generate_report(self, filename: str) -> None:
         """
         Generate a report of the test results and save it to a json file.
-        Params:
-            filename: The name of the file to save the report to.
-        """
 
+        Params:
+            filename: The name of the file to save the report to, without extension.
+        """
         tests = {
             "basic_delegations": [self.test_single_delegation, self.test_triple_delegation],
             "flexibility": [
@@ -476,7 +476,6 @@ class DelegationModelTests:
         self.service.db.add_parties(
             [f"party{i}" for i in range(0, max(numbers_of_delegations) + 1)]
         )
-
 
         for idx, number_of_delegations in enumerate(numbers_of_delegations):
             number_to_add = number_of_delegations - (
