@@ -15,10 +15,16 @@ This project explores and implements various models of delegation, focusing on t
    pip install -r requirements.txt
    ```
 
-2. Run the main application or tests as needed:
+2. Run the main application or tests as needed (from the src directory):
 
    ```bash
-   python src/main.py
+   python3 main.py
+   ```
+
+3. (Optional) Run the gen_performance_ployt script to visualize the generated performance values into a graph:
+
+   ```bash
+   python3 gen_performance_plot.py
    ```
 
 ## Adding new models
