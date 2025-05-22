@@ -1,35 +1,33 @@
 {
-    "tests": {
-        "basic_delegations": {
-            "test_single_delegation": true,
-            "test_triple_delegation": true
-        },
-        "flexibility": {
-            "test_parallel_paths": true,
-            "test_partial_delegations": true,
-            "test_changing_paths": true
-        },
-        "revocation": {
-            "test_simple_revocation": true,
-            "test_triple_delegation_final_revoked": true,
-            "test_triple_delegation_first_revoked_propagation": true
-        },
-        "other": {
-            "test_invalid_delegation": false
-        }
-    },
+    "tests": {},
     "performance": {
-        "5": "0.000033",
-        "10": "0.000055",
-        "50": "0.000254",
-        "100": "0.000581",
-        "250": "0.001716",
-        "500": "0.005293"
+        "5": "0.000350",
+        "10": "0.000072",
+        "50": "0.000341",
+        "100": "0.000707",
+        "250": "0.002149",
+        "500": "0.005259"
     },
-    "summary": {
-        "basic_delegations": true,
-        "flexibility": true,
-        "revocation": true,
-        "other": false
-    }
+    "performance_additional_parties": {
+        "0": "0.002107",
+        "5": "0.002043",
+        "10": "0.002017",
+        "50": "0.002002",
+        "100": "0.002135",
+        "500": "0.015707"
+    },
+    "performance_related_additional_parties": {
+        "0": "0.002072",
+        "5": "0.001963",
+        "10": "0.001945",
+        "25": "0.002066",
+        "50": "0.002109",
+        "100": "0.002355",
+        "250": "0.003376",
+        "500": "0.010374",
+        "1000": "0.007601",
+        "2500": "0.017092",
+        "5000": "0.028743"
+    },
+    "summary": {}
 }

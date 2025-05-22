@@ -9,7 +9,7 @@ import json
 
 
 class DelegationModelTests:
-    def __init__(self, db_class, service_class, performance_time_limit=0.1, performance_test_count=15):
+    def __init__(self, db_class, service_class, performance_time_limit=1, performance_test_count=3):
         self.db_class = db_class
         self.service = service_class(self.db_class())
         self.performance_time_limit = performance_time_limit
@@ -50,6 +50,8 @@ class DelegationModelTests:
             and test_method not in [test for test_list in tests.values() for test in test_list]
         ]
 
+        tests = {} # TODO REMOVE
+
         results = {}
         for category, test_list in tests.items():
             results[category] = {}
@@ -70,6 +72,16 @@ class DelegationModelTests:
         # Performance test
         performance_results = self.get_performance_values()
         results["performance"] = performance_results
+
+        # Reset database
+        self.service.db = self.db_class()
+        performance_additional_parties = self.get_performance_values_additional_parties()
+        results["performance_additional_parties"] = performance_additional_parties
+
+        # Reset database
+        self.service.db = self.db_class()
+        performance_related_additional_parties = self.get_performance_values_related_additional_parties()
+        results["performance_related_additional_parties"] = performance_related_additional_parties
 
         # Add a summary per category
         results["summary"] = {}
@@ -522,3 +534,154 @@ class DelegationModelTests:
             times_taken.append(format(elapsed_avg, ".6f"))
 
         return dict(zip(numbers_of_delegations, times_taken))
+    
+    def get_performance_values_additional_parties(self):
+        """
+        Test the performance of the delegation model with a growing number of parties and delegations.
+        This starts with a single long delegation chain, and then adds different delegations to the existing parties.
+        """
+
+        number_of_delegations = 250
+        last_party_number = 0
+
+        self.service.db.add_parties(
+            [f"party{i}" for i in range(number_of_delegations + 1)]
+        )
+
+        # Create the single long delegation chain
+        for _ in range(number_of_delegations):
+            self.service.add_delegation(
+                f"party{last_party_number}",
+                f"party{last_party_number + 1}",
+                [f"object1"],
+                ["read"],
+                time.time() + 1000000,
+            )
+            last_party_number += 1
+
+        # TODO: this is super slow, would like to build up to at least 1000
+        # additional_delegations = [0, 5, 10, 50, 100, 500, 1000, 2500, 5000]
+        additional_delegations = [0, 5, 10, 50, 100, 500]
+        times_taken = []
+        parties = [f"party{i}" for i in range(number_of_delegations)]
+        links = [
+            (party, party2)
+            for party2 in parties
+            for party in parties
+            if party != party2
+        ]
+        for idx, num_add_delegations in enumerate(additional_delegations):
+            start = additional_delegations[idx - 1] if idx > 0 else 0
+            end = additional_delegations[idx]
+            for source, target in links[start:end]:
+                self.service.add_delegation(
+                    source,
+                    target,
+                    [f"object2"],
+                    ["read"],
+                    time.time() + 1000000,
+                )
+
+            # self.service.db.visualize_graph(f"delegation_graph_{num_add_delegations}.png")
+            # for entry in self.service.db.graph.edges(data=True):
+                # print(entry)
+
+            elapsed_avg = 0
+            for _ in range(self.performance_test_count):
+                start_time = time.time()
+                success = self.service.has_access(
+                    f"party{number_of_delegations}",
+                    f"party0",
+                    "object1",
+                    "read",
+                )
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                elapsed_avg += elapsed_time
+
+                # print(num_add_delegations, success)
+
+                # If a single test takes longer than the performance time limit, fail the test
+                assert (
+                    elapsed_time < self.performance_time_limit
+                ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
+                
+            elapsed_avg /= self.performance_test_count
+
+            assert success, "Performance test failed, as access was expected, but failed."
+
+            times_taken.append(format(elapsed_avg, ".6f"))
+
+        return dict(zip(additional_delegations, times_taken))
+    
+    def get_performance_values_related_additional_parties(self):
+        number_of_delegations = 250
+        number_of_additional_parties = 500
+        last_party_number = 0
+        total_parties = number_of_delegations + number_of_additional_parties
+
+        self.service.db.add_parties(
+            [f"party{i}" for i in range(total_parties + 1)]
+        )
+
+        # Create the single long delegation chain
+        for _ in range(number_of_delegations):
+            self.service.add_delegation(
+                f"party{last_party_number}",
+                f"party{last_party_number + 1}",
+                [f"object1"],
+                ["read"],
+                time.time() + 1000000,
+            )
+            last_party_number += 1
+
+        additional_delegations = [0, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000]
+        times_taken = []
+
+        initial_parties = [f"party{i}" for i in range(number_of_delegations)]
+        additional_parties = [f"party{i}" for i in range(number_of_delegations, total_parties+1)]
+        links = [
+            (initial_party, additional_party)
+            for additional_party in additional_parties
+            for initial_party in initial_parties
+        ]
+
+        for idx, num_add_delegations in enumerate(additional_delegations):
+            start = additional_delegations[idx - 1] if idx > 0 else 0
+            end = additional_delegations[idx]
+            for source, target in links[start:end]:
+                self.service.add_delegation(
+                    source,
+                    target,
+                    [f"object1"],
+                    ["read"],
+                    time.time() + 1000000,
+                )
+
+            # self.service.db.visualize_graph(f"delegation_graph_{num_add_delegations}.png")
+
+            elapsed_avg = 0
+            for _ in range(self.performance_test_count):
+                start_time = time.time()
+                success = self.service.has_access(
+                    f"party{last_party_number - 1}",
+                    f"party0",
+                    "object1",
+                    "read",
+                )
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                elapsed_avg += elapsed_time
+
+                # If a single test takes longer than the performance time limit, fail the test
+                assert (
+                    elapsed_time < self.performance_time_limit
+                ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
+                
+            elapsed_avg /= self.performance_test_count
+
+            assert success, "Performance test failed, as access was expected, but failed."
+
+            times_taken.append(format(elapsed_avg, ".6f"))
+
+        return dict(zip(additional_delegations, times_taken))

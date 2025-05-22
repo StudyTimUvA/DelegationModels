@@ -38,36 +38,89 @@ class OracleService(BaseService.BaseService):
 
         return edge_id
 
+    # def has_access(self, party_id: str, owner_id: str, resource: str, action: str) -> bool:
+    #     """
+    #     Check if a party has recursive access to a resource.
+
+    #     Params:
+    #         party_id: the ID of the party.
+    #         resource: the resource to check access for.
+    #     Returns:
+    #         True if the party has recursive access, False otherwise.
+    #     """
+    #     # Check if there is any path from the owner to the party
+    #     if not nx.has_path(self.db.graph, owner_id, party_id):
+    #         print("Failed to find any path")
+    #         return False
+
+    #     # There is a path, now check if any of the paths contain the resource and action
+    #     paths = list(nx.all_simple_paths(self.db.graph, source=owner_id, target=party_id))
+    #     self.db.visualize_graph("test.png")
+
+    #     for path in paths:
+    #         valid_path = True
+    #         print(path)
+    #         for i in range(len(path) - 1):
+    #             u, v = path[i], path[i + 1]
+    #             edge_data = self.db.graph[u][v]
+    #             [print(entry) for entry in edge_data.items()]
+    #             now = time.time()
+
+    #             if edge_data.get("expires") and edge_data["expires"] < now:
+    #                 valid_path = False
+    #                 break
+    #             if resource not in edge_data.get("resources", []):
+    #                 valid_path = False
+    #                 break
+    #             if action not in edge_data.get("actions", []):
+    #                 valid_path = False
+    #                 break
+
+    #         if valid_path:
+    #             return True
+
+    #     return False
     def has_access(self, party_id: str, owner_id: str, resource: str, action: str) -> bool:
         """
         Check if a party has recursive access to a resource.
 
         Params:
             party_id: the ID of the party.
+            owner_id: the ID of the resource owner.
             resource: the resource to check access for.
+            action: the required action (e.g., 'read').
         Returns:
             True if the party has recursive access, False otherwise.
         """
         # Check if there is any path from the owner to the party
         if not nx.has_path(self.db.graph, owner_id, party_id):
+            # print("Failed to find any path")
             return False
 
         # There is a path, now check if any of the paths contain the resource and action
         paths = list(nx.all_simple_paths(self.db.graph, source=owner_id, target=party_id))
+        # self.db.visualize_graph("test.png")
+
         for path in paths:
             valid_path = True
+            # print(path)
+            now = time.time()
+
             for i in range(len(path) - 1):
                 u, v = path[i], path[i + 1]
-                edge_data = self.db.graph[u][v]
-                now = time.time()
+                edge_valid = False
 
-                if edge_data.get("expires") and edge_data["expires"] < now:
-                    valid_path = False
-                    break
-                if resource not in edge_data.get("resources", []):
-                    valid_path = False
-                    break
-                if action not in edge_data.get("actions", []):
+                for key, edge_attrs in self.db.graph[u][v].items():
+                    # print(f"Edge from {u} to {v} (key={key}): {edge_attrs}")
+                    if (
+                        edge_attrs.get("expires", float("inf")) > now and
+                        resource in edge_attrs.get("resources", []) and
+                        action in edge_attrs.get("actions", [])
+                    ):
+                        edge_valid = True
+                        break
+
+                if not edge_valid:
                     valid_path = False
                     break
 

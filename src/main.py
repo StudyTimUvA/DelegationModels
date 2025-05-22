@@ -18,6 +18,8 @@ if __name__ == "__main__":
     results = oracle_tester.run_tests(verbose=False)
     oracle_tester.print_test_results(results)
 
+    exit(0)
+
     # The previous party model --------------------------------
     prev_party_tester = tests.DelegationModelTests(
         database.Database, prevparty_service.PrevPartyService

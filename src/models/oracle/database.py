@@ -14,7 +14,7 @@ class Database(BaseDatabase.Database):
     def __init__(self):
         super().__init__()
 
-        self.graph = nx.DiGraph()
+        self.graph = nx.MultiDiGraph()
 
     def add_parties(self, party_ids: List[str]):
         """
@@ -34,7 +34,8 @@ class Database(BaseDatabase.Database):
         Params:
             filename: the name of the file to save the graph to.
         """
-        pos = nx.spring_layout(self.graph, k=1)
+        # pos = nx.spring_layout(self.graph, k=1.5)
+        pos = nx.circular_layout(self.graph, scale=1.5)
         nx.draw(self.graph, pos, with_labels=True)
         edge_labels = {
             (u, v): f"{','.join(d.get('resources'))}\n({','.join(d.get('actions'))})"
