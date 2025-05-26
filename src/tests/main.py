@@ -9,7 +9,7 @@ import json
 
 
 class DelegationModelTests:
-    def __init__(self, db_class, service_class, performance_time_limit=1, performance_test_count=3):
+    def __init__(self, db_class, service_class, performance_time_limit=1, performance_test_count=30):
         self.db_class = db_class
         self.service = service_class(self.db_class())
         self.performance_time_limit = performance_time_limit
@@ -49,8 +49,6 @@ class DelegationModelTests:
             if name.startswith("test_")
             and test_method not in [test for test_list in tests.values() for test in test_list]
         ]
-
-        tests = {} # TODO REMOVE
 
         results = {}
         for category, test_list in tests.items():

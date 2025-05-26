@@ -90,3 +90,5 @@ if __name__ == "__main__":
     ax.set_title("Performance of Delegation Models with Related Additional Parties")
     ax.legend()
     plt.savefig("reports/performance_plot_related_additional_parties.png")
+
+    # TODO: MAYBE CREATE A THREE DIMENSIONAL PLOT inputs: num related parties, num unrelated parties, and output time
