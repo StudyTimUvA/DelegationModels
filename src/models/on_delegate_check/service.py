@@ -7,31 +7,28 @@ class OnDelegateCheckService(base_service.BaseService):
     This class provides methods to interact with the OnDelegateCheck model.
     """
 
-    def __init__(self, database):
-        super().__init__(database)
-
-    def add_delegation(self, party1, party2, objects, actions, expiry):
+    def add_delegation(self, party1, party2, objects, actions, expiry, database_name: str):
         rule = evidence.Rule(
             object_ids=objects,
             actions=actions,
         )
 
         evid = evidence.Evidence(
-            identifier=self.db.get_next_identifier(),
+            identifier=self.db_broker.get_database(database_name).get_next_identifier(),
             issuer=party1,
             receiver=party2,
             rules=[rule],
             valid_from=0,
             valid_untill=expiry,
         )
-        self.db.add_evidence(evid)
+        self.db_broker.get_database(database_name).add_evidence(evid)
         return evid.identifier
 
     def has_access(self, delegatee, data_owner, object, action):
-        evidences = self.db.get_evidence_by_party(delegatee)
+        evidences = self.db_broker.get_all_evidence_by_party(delegatee)
 
-        for evidence in evidences:
-            if evidence.identifier in self.db.revocations:
+        for db_name, evidence in evidences:
+            if evidence.identifier in self.db_broker.get_database(db_name).revocations:
                 continue
 
             for rule in evidence.rules:
@@ -43,5 +40,5 @@ class OnDelegateCheckService(base_service.BaseService):
                 
         return False
 
-    def revoke_delegation(self, delegation_id):
-        self.db.revocations.append(delegation_id)
+    def revoke_delegation(self, delegation_id: int, db_name: str):
+        self.db_broker.get_database(db_name).revocations.append(delegation_id)

@@ -36,17 +36,17 @@ if __name__ == "__main__":
     # prev_delegation_tester.print_test_results(results)
 
     # The all previous delegation model -----------------------
-    all_prev_delegation_tester = tests.DelegationModelTests(
-        database.Database, database.DatabaseBroker, allprevdelegation_service.AllPrevDelegationsService
-    )
-    results = all_prev_delegation_tester.generate_report("reports/all_prev_delegation_model.json")
-    # results = all_prev_delegation_tester.run_tests(verbose=False)
-    all_prev_delegation_tester.print_test_results(results)
-    exit(0)
+    # all_prev_delegation_tester = tests.DelegationModelTests(
+    #     database.Database, database.DatabaseBroker, allprevdelegation_service.AllPrevDelegationsService
+    # )
+    # results = all_prev_delegation_tester.generate_report("reports/all_prev_delegation_model.json")
+    # # results = all_prev_delegation_tester.run_tests(verbose=False)
+    # all_prev_delegation_tester.print_test_results(results)
 
     # The on delegate check model ----------------------------
     on_delegate_check_tester = tests.DelegationModelTests(
         database.Database,
+        database.DatabaseBroker,
         ondelegatecheck_service.OnDelegateCheckService,
     )
     results = on_delegate_check_tester.generate_report("reports/on_delegate_check_model.json")
