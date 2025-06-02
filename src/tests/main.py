@@ -93,23 +93,25 @@ class DelegationModelTests:
         }
 
         # Performance test
-        # TODO: Fix the performance tests
-        # performance_results = self.get_performance_values()
-        # results["performance"] = performance_results
+        self.service.db_broker.add_database(
+            "base", self.service.db_class("base")
+        )
+        performance_results = self.get_performance_values()
+        results["performance"] = performance_results
 
         # # Reset database
-        # self.service.db_broker.add_database(
-        #     "base", self.service.db_class("base")
-        # )
-        # performance_additional_parties = self.get_performance_values_additional_parties()
-        # results["performance_additional_parties"] = performance_additional_parties
+        self.service.db_broker.add_database(
+            "base", self.service.db_class("base")
+        )
+        performance_additional_parties = self.get_performance_values_additional_parties()
+        results["performance_additional_parties"] = performance_additional_parties
 
-        # # Reset database
-        # self.service.db_broker.add_database(
-        #     "base", self.service.db_class("base")
-        # )
-        # performance_related_additional_parties = self.get_performance_values_related_additional_parties()
-        # results["performance_related_additional_parties"] = performance_related_additional_parties
+        # Reset database
+        self.service.db_broker.add_database(
+            "base", self.service.db_class("base")
+        )
+        performance_related_additional_parties = self.get_performance_values_related_additional_parties()
+        results["performance_related_additional_parties"] = performance_related_additional_parties
 
         # Add a summary per category
         results["summary"] = {}
@@ -551,6 +553,7 @@ class DelegationModelTests:
         """
 
         numbers_of_delegations = [5, 10, 50, 100, 250, 500]
+        # numbers_of_delegations = [3]
         last_party_number = 0
         times_taken = []
 
@@ -567,7 +570,7 @@ class DelegationModelTests:
                 self.service.add_delegation(
                     f"party{last_party_number}",
                     f"party{last_party_number + 1}",
-                    [f"object1"],
+                    ["object1"],
                     ["read"],
                     time.time() + 1000000,
                     "base"

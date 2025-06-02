@@ -40,7 +40,7 @@ class Database(BaseDatabase.Database):
         pos = nx.circular_layout(self.graph, scale=1.5)
         nx.draw(self.graph, pos, with_labels=True)
         edge_labels = {
-            (u, v): f"{','.join(d.get('resources'))}\n({','.join(d.get('actions'))})"
+            (u, v): f"{','.join(d.get('resources', []))}\n({','.join(d.get('actions', []))})"
             for u, v, d in self.graph.edges(data=True)
         }
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels, font_size=8)
