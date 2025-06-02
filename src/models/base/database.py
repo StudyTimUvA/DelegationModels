@@ -4,7 +4,7 @@ from . import evidence
 
 
 class Database:
-    def __init__(self):
+    def __init__(self, name: str):
         self.evidence = {
             # id: Evidence object
         }
@@ -13,6 +13,7 @@ class Database:
         ]
 
         self.id_counter = 0
+        self.name = name
 
     def add_parties(self, party_ids: List[str]):
         return

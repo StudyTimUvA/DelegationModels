@@ -55,4 +55,16 @@ class BaseService:
             delegation_id: the ID of the delegation to be revoked.
         """
         raise NotImplementedError()
+    
+    def add_parties(self, party_ids: List[str], database_key: str):
+        """
+        Add multiple parties to the database.
+
+        Note: This method might not be required in all implementations, but is included for completeness.
+
+        Params:
+            party_ids: a list of party IDs to be added.
+            database_key: the name of the database to add parties to.
+        """
+        ...
 
