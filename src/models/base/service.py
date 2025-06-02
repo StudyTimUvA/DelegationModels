@@ -3,14 +3,16 @@ from typing import List
 
 
 class BaseService:
-    def __init__(self, database: database.Database):
+    def __init__(self, database: database.Database, database_broker: database.DatabaseBroker = None):
         """
         Initialize the BaseService with a database instance.
 
         Params:
             database: an instance of the Database class.
+            database_broker: an optional instance of the DatabaseBroker class for additional functionality.
         """
         self.db = database
+        self.db_broker = database_broker
 
     def has_access(self, delegatee: str, data_owner: str, object: str, action: str) -> bool:
         """
@@ -28,7 +30,7 @@ class BaseService:
         raise NotImplementedError("Not implemented yet!")
 
     def add_delegation(
-        self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float
+        self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float, database_key: str
     ) -> int:
         """
         Add a delegation from party1 to party2 in the database.
@@ -45,28 +47,12 @@ class BaseService:
         """
         raise NotImplementedError()
 
-    def revoke_delegation(self, delegation_id: int) -> bool:
+    def revoke_delegation(self, delegation_id: int, database_key: str):
         """
         Revoke a delegation in the database.
 
         Params:
             delegation_id: the ID of the delegation to be revoked.
-
-        Returns:
-            True if the revocation was successful, False otherwise.
-        """
-        raise NotImplementedError("Not implemented yet!")
-
-    def get_path(self, party1: str, party2: str, object: str) -> List[str]:
-        """
-        Get the path between two parties in the database.
-
-        Params:
-            party1: the ID of the first party.
-            party2: the ID of the second party.
-            object: the identifier of the object.
-
-        Returns:
-            A list of party IDs representing the path from party1 to party2.
         """
         raise NotImplementedError()
+

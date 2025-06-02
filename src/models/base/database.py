@@ -3,9 +3,6 @@ from typing import List
 from . import evidence
 
 
-# TODO: can have a databaseBroker class that stores multiple databases -> multi AR test
-
-
 class Database:
     def __init__(self):
         self.evidence = {
@@ -84,6 +81,9 @@ class Database:
 
 
 class DatabaseBroker:
+    """This class functions as a broker for multiple databases, allowing to simulate a multi-AR test environment.
+    In reality, this system would likely be implemented using a DNS (like system) to route requests to the appropriate database.
+    """
     def __init__(self):
         self.databases = {}
 

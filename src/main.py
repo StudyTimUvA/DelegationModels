@@ -10,22 +10,23 @@ import tests.main as tests
 
 if __name__ == "__main__":
     # Test the Oracle model ---------------------------------------
-    oracle_tester = tests.DelegationModelTests(
-        oracle_database.Database,
-        oracleservice.OracleService,
-        performance_test_count=1
-    )
-    results = oracle_tester.generate_report("reports/oracle_model.json")
-    # results = oracle_tester.run_tests(verbose=False)
-    oracle_tester.print_test_results(results)
+    # oracle_tester = tests.DelegationModelTests(
+    #     oracle_database.Database,
+    #     oracleservice.OracleService,
+    #     performance_test_count=1
+    # )
+    # results = oracle_tester.generate_report("reports/oracle_model.json")
+    # # results = oracle_tester.run_tests(verbose=False)
+    # oracle_tester.print_test_results(results)
 
     # The previous party model --------------------------------
     prev_party_tester = tests.DelegationModelTests(
-        database.Database, prevparty_service.PrevPartyService
+        database.Database, database.DatabaseBroker, prevparty_service.PrevPartyService
     )
     results = prev_party_tester.generate_report("reports/prev_party_model.json")
     # results = prev_party_tester.run_tests(verbose=False)
     prev_party_tester.print_test_results(results)
+    exit(0)
 
     # The previous delegation model ---------------------------
     prev_delegation_tester = tests.DelegationModelTests(

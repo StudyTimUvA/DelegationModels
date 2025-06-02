@@ -9,13 +9,20 @@ import json
 
 
 class DelegationModelTests:
-    def __init__(self, db_class, service_class, performance_time_limit=1, performance_test_count=30):
+    def __init__(self, db_class, database_broker_class, service_class, performance_time_limit=1, performance_test_count=30):
+        # Set up simulation components
         self.db_class = db_class
-        self.service = service_class(self.db_class())
+        self.database_broker_class = database_broker_class
+        self.service = service_class(self.db_class(), self.database_broker_class())
+        self.service.database_broker.add_database(
+            "base", self.service.db
+        )
+
+        # Store performance test parameters
         self.performance_time_limit = performance_time_limit
         self.performance_test_count = performance_test_count
 
-        self.parties = [
+        self.PARTIES = [
             "owner1",
             "party1",
             "party2",
@@ -61,7 +68,7 @@ class DelegationModelTests:
             for test_method in test_list:
                 test_name = test_method.__name__
                 self.service.db = self.db_class()
-                self.service.db.add_parties(self.parties)
+                self.service.db.add_parties(self.PARTIES)
 
                 try:
                     test_method()
@@ -126,7 +133,7 @@ class DelegationModelTests:
 
         for name, test_method in tests:
             self.service.db = self.db_class()
-            self.service.db.add_parties(self.parties)
+            self.service.db.add_parties(self.PARTIES)
 
             if verbose:
                 print(f"Running test: {name}")
