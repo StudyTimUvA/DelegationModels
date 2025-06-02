@@ -3,7 +3,7 @@ from typing import List
 
 
 class BaseService:
-    def __init__(self, database: database.Database, database_broker: database.DatabaseBroker = None):
+    def __init__(self, db_class, database_broker: database.DatabaseBroker = None):
         """
         Initialize the BaseService with a database instance.
 
@@ -11,7 +11,7 @@ class BaseService:
             database: an instance of the Database class.
             database_broker: an optional instance of the DatabaseBroker class for additional functionality.
         """
-        self.db = database
+        self.db_class = db_class
         self.db_broker = database_broker
 
     def has_access(self, delegatee: str, data_owner: str, object: str, action: str) -> bool:

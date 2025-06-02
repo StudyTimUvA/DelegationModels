@@ -2,26 +2,31 @@ from ..base import database
 from ..base import service
 from ..base import evidence
 
+# TODO: remove the base main database, instead only use the broker
+# TODO: update the has_access method to work using the broker
+
 
 class PrevPartyService(service.BaseService):
-    def add_delegation(self, party1, party2, objects, actions, expiry):
+    def add_delegation(self, party1, party2, objects, actions, expiry, database_name):
+        db = self.db_broker.get_database(database_name)
+
         rule = evidence.Rule(
             object_ids=objects,
             actions=actions,
         )
 
         evid = evidence.Evidence(
-            identifier=self.db.get_next_identifier(),
+            identifier=db.get_next_identifier(),
             issuer=party1,
             receiver=party2,
             rules=[rule],
             valid_from=0,
             valid_untill=expiry,
         )
-        self.db.add_evidence(evid)
+        db.add_evidence(evid)
         return evid.identifier
 
-    def revoke_delegation(self, delegation_id):
+    def revoke_delegation(self, delegation_id, database_name):
         """
         Revoke a delegation by its ID.
 
@@ -31,9 +36,11 @@ class PrevPartyService(service.BaseService):
         Returns:
             True if the revocation was successful, False otherwise.
         """
-        evidence = self.db.get_evidence(delegation_id)
+        db = self.db_broker.get_database(database_name)
+
+        evidence = db.get_evidence(delegation_id)
         if evidence:
-            self.db.revoke(delegation_id)
+            db.revoke(delegation_id)
             return True
         return False
 
@@ -69,9 +76,9 @@ class PrevPartyService(service.BaseService):
         visited.add(current_party)
 
         # Check if the current party has direct access to the object
-        for evidence in self.db.get_evidence_by_party(current_party):
+        for db_name, evidence in self.db_broker.get_all_evidence_by_party(current_party):
             for rule in evidence.rules:
-                if evidence.identifier in self.db.revocations:
+                if evidence.identifier in self.db_broker.get_database(db_name).revocations:
                     continue
 
                 if object_id in rule.object_ids and action in rule.actions:

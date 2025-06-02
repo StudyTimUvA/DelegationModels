@@ -13,9 +13,9 @@ class DelegationModelTests:
         # Set up simulation components
         self.db_class = db_class
         self.database_broker_class = database_broker_class
-        self.service = service_class(self.db_class(), self.database_broker_class())
-        self.service.database_broker.add_database(
-            "base", self.service.db
+        self.service = service_class(self.db_class, self.database_broker_class())
+        self.service.db_broker.add_database(
+            "base", self.service.db_class()
         )
 
         # Store performance test parameters
@@ -30,7 +30,7 @@ class DelegationModelTests:
             "party4",
         ]
 
-    def generate_report(self, filename: str, expectations: dict = None) -> dict:
+    def generate_report(self, filename: str, expectations: dict = None, verbose=False) -> dict:
         """
         Generate a report of the test results and save it to a json file.
 
@@ -67,14 +67,18 @@ class DelegationModelTests:
             results[category] = {}
             for test_method in test_list:
                 test_name = test_method.__name__
-                self.service.db = self.db_class()
-                self.service.db.add_parties(self.PARTIES)
+                self.service.db_broker.add_database(
+                    "base", self.service.db_class()
+                )
+                # TODO ADD PARTIES
 
                 try:
                     test_method()
                     results[category][test_name] = True
+                    print(f"Test {test_name} passed.") if verbose else None
                 except Exception as e:
                     results[category][test_name] = False
+                    print(f"Test {test_name} failed: {e}") if verbose else None
 
             if all(
                 result for result in results[category].values()
@@ -92,12 +96,16 @@ class DelegationModelTests:
         results["performance"] = performance_results
 
         # Reset database
-        self.service.db = self.db_class()
+        self.service.db_broker.add_database(
+            "base", self.service.db_class()
+        )
         performance_additional_parties = self.get_performance_values_additional_parties()
         results["performance_additional_parties"] = performance_additional_parties
 
         # Reset database
-        self.service.db = self.db_class()
+        self.service.db_broker.add_database(
+            "base", self.service.db_class()
+        )
         performance_related_additional_parties = self.get_performance_values_related_additional_parties()
         results["performance_related_additional_parties"] = performance_related_additional_parties
 
@@ -132,7 +140,7 @@ class DelegationModelTests:
         results = {}
 
         for name, test_method in tests:
-            self.service.db = self.db_class()
+            # TODO RESET DB
             self.service.db.add_parties(self.PARTIES)
 
             if verbose:
@@ -197,6 +205,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
 
         # Test cases that should hold true
@@ -226,6 +235,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "party1",
@@ -233,6 +243,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "party2",
@@ -240,6 +251,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
 
         # Test cases that should hold true
@@ -278,6 +290,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "party1",
@@ -285,6 +298,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "owner1",
@@ -292,6 +306,7 @@ class DelegationModelTests:
             ["object1"],
             ["read", "write"],
             time.time() + 1000000,
+            "base"
         )
 
         # Test cases that should hold true
@@ -324,6 +339,7 @@ class DelegationModelTests:
             ["object1", "object2"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "party1",
@@ -331,6 +347,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         # Test cases that should hold true
         assert (
@@ -359,6 +376,7 @@ class DelegationModelTests:
             ["object3"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
 
         # Test cases that should hold true
@@ -383,8 +401,9 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
-        self.service.revoke_delegation(identifier)
+        self.service.revoke_delegation(identifier, "base")
 
         # Test cases that should hold true
         assert (
@@ -402,6 +421,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "party1",
@@ -409,6 +429,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         identifier = self.service.add_delegation(
             "party2",
@@ -416,8 +437,9 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
-        self.service.revoke_delegation(identifier)
+        self.service.revoke_delegation(identifier, "base")
 
         # Test cases
         assert (
@@ -441,6 +463,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "party1",
@@ -448,6 +471,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "party2",
@@ -455,8 +479,9 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
-        self.service.revoke_delegation(identifier)
+        self.service.revoke_delegation(identifier, "base")
 
         # Test cases
         assert (
@@ -480,6 +505,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 100000,
+            "base"
         )
         self.service.add_delegation(
             "party1",
@@ -487,6 +513,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
         self.service.add_delegation(
             "party2",
@@ -494,8 +521,9 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
-        self.service.revoke_delegation(identifier)
+        self.service.revoke_delegation(identifier, "base")
 
         self.service.add_delegation(
             "owner1",
@@ -503,6 +531,7 @@ class DelegationModelTests:
             ["object1"],
             ["read"],
             time.time() + 1000000,
+            "base"
         )
 
         # Test cases
@@ -523,7 +552,7 @@ class DelegationModelTests:
         last_party_number = 0
         times_taken = []
 
-        self.service.db.add_parties(
+        self.service.db_broker.get_database("base").add_parties(
             [f"party{i}" for i in range(0, max(numbers_of_delegations) + 1)]
         )
 
@@ -539,6 +568,7 @@ class DelegationModelTests:
                     [f"object1"],
                     ["read"],
                     time.time() + 1000000,
+                    "base"
                 )
                 last_party_number += 1
 
@@ -577,7 +607,7 @@ class DelegationModelTests:
         number_of_delegations = 250
         last_party_number = 0
 
-        self.service.db.add_parties(
+        self.service.db_broker.get_database("base").add_parties(
             [f"party{i}" for i in range(number_of_delegations + 1)]
         )
 
@@ -589,6 +619,7 @@ class DelegationModelTests:
                 [f"object1"],
                 ["read"],
                 time.time() + 1000000,
+                "base"
             )
             last_party_number += 1
 
@@ -613,6 +644,7 @@ class DelegationModelTests:
                     [f"object2"],
                     ["read"],
                     time.time() + 1000000,
+                    "base"
                 )
 
             # self.service.db.visualize_graph(f"delegation_graph_{num_add_delegations}.png")
@@ -653,7 +685,7 @@ class DelegationModelTests:
         last_party_number = 0
         total_parties = number_of_delegations + number_of_additional_parties
 
-        self.service.db.add_parties(
+        self.service.db_broker.get_database("base").add_parties(
             [f"party{i}" for i in range(total_parties + 1)]
         )
 
@@ -665,6 +697,7 @@ class DelegationModelTests:
                 [f"object1"],
                 ["read"],
                 time.time() + 1000000,
+                "base"
             )
             last_party_number += 1
 
@@ -689,6 +722,7 @@ class DelegationModelTests:
                     [f"object1"],
                     ["read"],
                     time.time() + 1000000,
+                    "base"
                 )
 
             # self.service.db.visualize_graph(f"delegation_graph_{num_add_delegations}.png")

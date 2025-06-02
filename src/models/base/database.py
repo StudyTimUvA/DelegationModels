@@ -1,5 +1,5 @@
 import time
-from typing import List
+from typing import List, Tuple
 from . import evidence
 
 
@@ -124,3 +124,34 @@ class DatabaseBroker:
         if database:
             return database.get_evidence(identifier)
         return None
+    
+    def get_evidence_by_party(self, db_name: str, party_id: str) -> List[evidence.Evidence]:
+        """
+        Retrieve all currently relevant evidence for a specific party from a specific database.
+
+        Params:
+            db_name: the name of the database.
+            party_id: the ID of the party whose evidence is to be retrieved.
+        Returns:
+            A list of evidence objects for the specified party.
+        """
+        database = self.get_database(db_name)
+        if database:
+            return database.get_evidence_by_party(party_id)
+        return []
+    
+    def get_all_evidence_by_party(self, party_id: str) -> List[Tuple[str, evidence.Evidence]]:
+        """
+        Retrieve all currently relevant evidence for a specific party across all databases.
+
+        Params:
+            party_id: the ID of the party whose evidence is to be retrieved.
+
+        Returns:
+            A list of tuples, each containing the database name and the evidence object for the specified party.
+        """
+        all_evidence = []
+        for db_name, db in self.databases.items():
+            for ev in db.get_evidence_by_party(party_id):
+                all_evidence.append((db_name, ev))
+        return all_evidence
