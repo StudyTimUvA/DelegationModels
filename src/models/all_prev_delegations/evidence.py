@@ -17,6 +17,7 @@ class Evidence(base_evidence.Evidence):
         valid_from: int,
         valid_untill: int,
         prev_delegations: List[int] = None,
+        prev_db_names: List[str] = None,
     ):
         super().__init__(
             identifier=identifier,
@@ -27,3 +28,4 @@ class Evidence(base_evidence.Evidence):
             valid_untill=valid_untill,
         )
         self.prev_delegations = prev_delegations
+        self.prev_db_names = prev_db_names

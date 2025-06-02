@@ -28,13 +28,12 @@ if __name__ == "__main__":
     # prev_party_tester.print_test_results(results)
 
     # The previous delegation model ---------------------------
-    prev_delegation_tester = tests.DelegationModelTests(
-        database.Database, database.DatabaseBroker, prevdelegation_service.PrevDelegationService
-    )
-    results = prev_delegation_tester.generate_report("reports/prev_delegation_model.json")
-    # results = prev_delegation_tester.run_tests(verbose=False)
-    prev_delegation_tester.print_test_results(results)
-    exit(0)
+    # prev_delegation_tester = tests.DelegationModelTests(
+    #     database.Database, database.DatabaseBroker, prevdelegation_service.PrevDelegationService
+    # )
+    # results = prev_delegation_tester.generate_report("reports/prev_delegation_model.json")
+    # # results = prev_delegation_tester.run_tests(verbose=False)
+    # prev_delegation_tester.print_test_results(results)
 
     # The all previous delegation model -----------------------
     all_prev_delegation_tester = tests.DelegationModelTests(
@@ -43,6 +42,7 @@ if __name__ == "__main__":
     results = all_prev_delegation_tester.generate_report("reports/all_prev_delegation_model.json")
     # results = all_prev_delegation_tester.run_tests(verbose=False)
     all_prev_delegation_tester.print_test_results(results)
+    exit(0)
 
     # The on delegate check model ----------------------------
     on_delegate_check_tester = tests.DelegationModelTests(
