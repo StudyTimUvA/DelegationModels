@@ -23,12 +23,16 @@ class DelegationModelTests:
             "party4",
         ]
 
-    def generate_report(self, filename: str) -> None:
+    def generate_report(self, filename: str, expectations: dict = None) -> dict:
         """
         Generate a report of the test results and save it to a json file.
 
         Params:
             filename: The name of the file to save the report to, without extension.
+            expectations: A dictionary with the expected results for each category (dict[str, bool]).
+
+        Returns:
+            A dictionary with the test results, including performance and summary.
         """
         tests = {
             "basic_delegations": [self.test_single_delegation, self.test_triple_delegation],
@@ -51,6 +55,7 @@ class DelegationModelTests:
         ]
 
         results = {}
+        results["matches_expectation"] = {}
         for category, test_list in tests.items():
             results[category] = {}
             for test_method in test_list:
@@ -63,6 +68,14 @@ class DelegationModelTests:
                     results[category][test_name] = True
                 except Exception as e:
                     results[category][test_name] = False
+
+            if all(
+                result for result in results[category].values()
+            ):
+                results["matches_expectation"][category] = True
+            else:
+                results["matches_expectation"][category] = False
+
         results = {
             "tests": results
         }
@@ -89,6 +102,8 @@ class DelegationModelTests:
 
         with open(filename, "w") as f:
             json.dump(results, f, indent=4)
+
+        return results
 
 
     def run_tests(self, verbose=True) -> dict:
@@ -137,17 +152,30 @@ class DelegationModelTests:
         Params:
             results: A dictionary with the test names as keys and the results as values.
         """
-        check = "✓"
-        cross = "✗"
+        CHECK = "✓"
+        CROSS = "✗"
+
+        results = results["tests"]
 
         print(f"Test Results: {self.service.__class__.__name__}")
 
-        longest_name = max(len(name) for name in results.keys())
-        print(f"| {'Test Name':<{longest_name}} | Result |")
-        print("-" * (longest_name + 13))
-        for name, result in results.items():
-            result_symbol = check if result else cross
-            print(f"| {name:<{longest_name}} | {result_symbol}      |")
+        longest_cat_name = max(len(name) for name in results.keys())
+        longest_test_name = max(
+            max(len(test_name) for test_name in cat_results.keys())
+            for cat_results in results.values()
+        )
+        print(f"| {'Category':<{longest_cat_name}} | {'Test Name':<{longest_test_name}} | Result |")
+        print("-" * (longest_cat_name + longest_test_name + 16))
+        for category, cat_results in results.items():
+            if category == "matches_expectation":
+                continue
+
+            for name, result in cat_results.items():
+                result_symbol = CHECK if result else CROSS
+                print(f"| {category:<{longest_cat_name}} | {name:<{longest_test_name}} | {result_symbol}      |")
+
+        print("-" * (longest_cat_name + longest_test_name + 16))
+        print(f"Matches expectations: {results['matches_expectation']}")
 
         print("")
 

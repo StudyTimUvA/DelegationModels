@@ -3,6 +3,9 @@ from typing import List
 from . import evidence
 
 
+# TODO: can have a databaseBroker class that stores multiple databases -> multi AR test
+
+
 class Database:
     def __init__(self):
         self.evidence = {
@@ -78,3 +81,46 @@ class Database:
             evidence_id: the ID of the evidence to be revoked.
         """
         self.revocations.append(evidence_id)
+
+
+class DatabaseBroker:
+    def __init__(self):
+        self.databases = {}
+
+    def add_database(self, db_name: str, database: Database):
+        """
+        Add a database to the broker.
+
+        Params:
+            db_name: the name of the database.
+            database: the Database object to be added.
+        """
+        self.databases[db_name] = database
+
+    def get_database(self, db_name: str) -> Database:
+        """
+        Retrieve a database by its name.
+
+        Params:
+            db_name: the name of the database to retrieve.
+
+        Returns:
+            The Database object if found, otherwise None.
+        """
+        return self.databases.get(db_name, None)
+    
+    def get_database_entry(self, db_name: str, identifier: int):
+        """
+        Retrieve a specific entry from a database by its identifier.
+
+        Params:
+            db_name: the name of the database.
+            identifier: the ID of the evidence to retrieve.
+
+        Returns:
+            The evidence object if found, otherwise None.
+        """
+        database = self.get_database(db_name)
+        if database:
+            return database.get_evidence(identifier)
+        return None

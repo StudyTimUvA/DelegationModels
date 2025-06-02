@@ -1,33 +1,63 @@
 {
-    "tests": {},
+    "tests": {
+        "matches_expectation": {
+            "basic_delegations": true,
+            "flexibility": true,
+            "revocation": true,
+            "other": false
+        },
+        "basic_delegations": {
+            "test_single_delegation": true,
+            "test_triple_delegation": true
+        },
+        "flexibility": {
+            "test_parallel_paths": true,
+            "test_partial_delegations": true,
+            "test_changing_paths": true
+        },
+        "revocation": {
+            "test_simple_revocation": true,
+            "test_triple_delegation_final_revoked": true,
+            "test_triple_delegation_first_revoked_propagation": true
+        },
+        "other": {
+            "test_invalid_delegation": false
+        }
+    },
     "performance": {
-        "5": "0.000068",
-        "10": "0.000067",
-        "50": "0.000304",
-        "100": "0.000677",
-        "250": "0.002574",
-        "500": "0.006144"
+        "5": "0.000102",
+        "10": "0.000158",
+        "50": "0.000737",
+        "100": "0.001597",
+        "250": "0.006255",
+        "500": "0.013312"
     },
     "performance_additional_parties": {
-        "0": "0.002025",
-        "5": "0.002004",
-        "10": "0.002681",
-        "50": "0.002086",
-        "100": "0.002672",
-        "500": "0.013326"
+        "0": "0.003311",
+        "5": "0.003043",
+        "10": "0.002938",
+        "50": "0.002975",
+        "100": "0.002616",
+        "500": "0.015272"
     },
     "performance_related_additional_parties": {
-        "0": "0.002552",
-        "5": "0.002014",
-        "10": "0.002713",
-        "25": "0.002679",
-        "50": "0.003534",
-        "100": "0.003279",
-        "250": "0.003467",
-        "500": "0.005487",
-        "1000": "0.008371",
-        "2500": "0.016952",
-        "5000": "0.033013"
+        "0": "0.003497",
+        "5": "0.003026",
+        "10": "0.003184",
+        "25": "0.002896",
+        "50": "0.003250",
+        "100": "0.003726",
+        "250": "0.005522",
+        "500": "0.006850",
+        "1000": "0.011182",
+        "2500": "0.022536",
+        "5000": "0.044408"
     },
-    "summary": {}
+    "summary": {
+        "matches_expectation": false,
+        "basic_delegations": true,
+        "flexibility": true,
+        "revocation": true,
+        "other": false
+    }
 }
