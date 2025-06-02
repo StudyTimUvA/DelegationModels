@@ -24,7 +24,8 @@ class OnDelegateCheckService(base_service.BaseService):
         self.db_broker.get_database(database_name).add_evidence(evid)
         return evid.identifier
 
-    def has_access(self, delegatee, data_owner, object, action):
+    def has_access(self, delegatee, data_owner, object, action, db_name):
+        # Note: the data_owner parameter is not used, as no traversal is done
         evidences = self.db_broker.get_all_evidence_by_party(delegatee)
 
         for db_name, evidence in evidences:

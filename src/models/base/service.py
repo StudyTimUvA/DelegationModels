@@ -14,7 +14,7 @@ class BaseService:
         self.db_class = db_class
         self.db_broker = database_broker
 
-    def has_access(self, delegatee: str, data_owner: str, object: str, action: str) -> bool:
+    def has_access(self, delegatee: str, data_owner: str, object: str, action: str, db_name: str) -> bool:
         """
         Check if a delegatee has access to an object based on the evidence in the database.
 

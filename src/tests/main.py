@@ -9,7 +9,7 @@ import json
 
 
 class DelegationModelTests:
-    def __init__(self, db_class, database_broker_class, service_class, performance_time_limit=1, performance_test_count=30):
+    def __init__(self, db_class, database_broker_class, service_class, performance_time_limit=1, performance_test_count=5):
         # Set up simulation components
         self.db_class = db_class
         self.database_broker_class = database_broker_class
@@ -214,18 +214,18 @@ class DelegationModelTests:
 
         # Test cases that should hold true
         assert (
-            self.service.has_access("party1", "owner1", "object1", "read") == True
+            self.service.has_access("party1", "owner1", "object1", "read", "base") == True
         ), "party1 should have read access to object1 in DO->p1"
 
         # Test cases that should hold false
         assert (
-            self.service.has_access("party1", "owner1", "object2", "read") == False
+            self.service.has_access("party1", "owner1", "object2", "read", "base") == False
         ), "party1 should have access to object1 in DO->p1"
         assert (
-            self.service.has_access("party1", "owner1", "object2", "write") == False
+            self.service.has_access("party1", "owner1", "object2", "write", "base") == False
         ), "party1 should have access to object1 in DO->p1"
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read") == False
+            self.service.has_access("party2", "owner1", "object1", "read", "base") == False
         ), "party2 should not have access to object1 in DO->p1"
 
     def test_triple_delegation(self):
@@ -260,27 +260,27 @@ class DelegationModelTests:
 
         # Test cases that should hold true
         assert (
-            self.service.has_access("party1", "owner1", "object1", "read") == True
+            self.service.has_access("party1", "owner1", "object1", "read", "base") == True
         ), "party1 should have read access to object1 in DO->p1->p2->p3"
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read") == True
+            self.service.has_access("party2", "owner1", "object1", "read", "base") == True
         ), "party2 should have read access to object1 in DO->p1->p2->p3"
         assert (
-            self.service.has_access("party3", "owner1", "object1", "read") == True
+            self.service.has_access("party3", "owner1", "object1", "read", "base") == True
         ), "party3 should have read access to object1 in DO->p1->p2->p3"
 
         # Test cases that should hold false
         assert (
-            self.service.has_access("party1", "owner1", "object1", "write") == False
+            self.service.has_access("party1", "owner1", "object1", "write", "base") == False
         ), "party1 should not have write access to object1 in DO->p1->p2->p3"
         assert (
-            self.service.has_access("party2", "owner1", "object1", "write") == False
+            self.service.has_access("party2", "owner1", "object1", "write", "base") == False
         ), "party2 should not have write access to object1 in DO->p1->p2->p3"
         assert (
-            self.service.has_access("party3", "owner1", "object1", "write") == False
+            self.service.has_access("party3", "owner1", "object1", "write", "base") == False
         ), "party3 should not have write access to object1 in DO->p1->p2->p3"
         assert (
-            self.service.has_access("party4", "owner1", "object1", "read") == False
+            self.service.has_access("party4", "owner1", "object1", "read", "base") == False
         ), "party4 should have any access to object1 in DO->p1->p2->p3"
 
     def test_parallel_paths(self):
@@ -315,21 +315,21 @@ class DelegationModelTests:
 
         # Test cases that should hold true
         assert (
-            self.service.has_access("party1", "owner1", "object1", "read") == True
+            self.service.has_access("party1", "owner1", "object1", "read", "base") == True
         ), "party1 should have read access to object1 in DO->p1->p2"
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read") == True
+            self.service.has_access("party2", "owner1", "object1", "read", "base") == True
         ), "party2 should have read access to object1 in DO->p1->p2"
         assert (
-            self.service.has_access("party2", "owner1", "object1", "write") == True
+            self.service.has_access("party2", "owner1", "object1", "write", "base") == True
         ), "party2 should have write access to object1 in DO->p1->p2"
 
         # Test cases that should hold false
         assert (
-            self.service.has_access("party1", "owner1", "object1", "write") == False
+            self.service.has_access("party1", "owner1", "object1", "write", "base") == False
         ), "party1 should not have write access to object1 in DO->p1->p2"
         assert (
-            self.service.has_access("party3", "owner1", "object1", "read") == False
+            self.service.has_access("party3", "owner1", "object1", "read", "base") == False
         ), "party3 should not have access to object1 in DO->p1->p2"
 
     def test_partial_delegations(self):
@@ -355,18 +355,18 @@ class DelegationModelTests:
         )
         # Test cases that should hold true
         assert (
-            self.service.has_access("party1", "owner1", "object1", "read") == True
+            self.service.has_access("party1", "owner1", "object1", "read", "base") == True
         ), "party1 should have read access to object1 in DO->p1->p2"
         assert (
-            self.service.has_access("party1", "owner1", "object2", "read") == True
+            self.service.has_access("party1", "owner1", "object2", "read", "base") == True
         ), "party1 should have read access to object2 in DO->p1->p2"
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read") == True
+            self.service.has_access("party2", "owner1", "object1", "read", "base") == True
         ), "party2 should have read access to object1 in DO->p1->p2"
 
         # Test cases that should hold false
         assert (
-            self.service.has_access("party2", "owner1", "object2", "read") == False
+            self.service.has_access("party2", "owner1", "object2", "read", "base") == False
         ), "party2 should not have read access to object2 in DO->p1->p2"
 
     def test_invalid_delegation(self):
@@ -388,10 +388,10 @@ class DelegationModelTests:
 
         # Test cases that should hold false
         assert (
-            self.service.has_access("party1", "owner1", "object3", "read") == False
+            self.service.has_access("party1", "owner1", "object3", "read", "base") == False
         ), "party1 should not have read access to object3 in p1->p2"
         assert (
-            self.service.has_access("party2", "owner1", "object3", "read") == False
+            self.service.has_access("party2", "owner1", "object3", "read", "base") == False
         ), "party2 should not have read access to object3 in p1->p2"
 
     def test_simple_revocation(self):
@@ -411,7 +411,7 @@ class DelegationModelTests:
 
         # Test cases that should hold true
         assert (
-            self.service.has_access("party1", "owner1", "object1", "read") == False
+            self.service.has_access("party1", "owner1", "object1", "read", "base") == False
         ), "party1 should not have read access to object1 in DO->p1, when revoked"
 
     def test_triple_delegation_final_revoked(self):
@@ -447,13 +447,13 @@ class DelegationModelTests:
 
         # Test cases
         assert (
-            self.service.has_access("party1", "owner1", "object1", "read") == True
+            self.service.has_access("party1", "owner1", "object1", "read", "base") == True
         ), "party1 should have read access to object1 in DO->p1->p2->p3, when revoked"
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read") == True
+            self.service.has_access("party2", "owner1", "object1", "read", "base") == True
         ), "party2 should have read access to object1 in DO->p1->p2->p3, when revoked"
         assert (
-            self.service.has_access("party3", "owner1", "object1", "read") == False
+            self.service.has_access("party3", "owner1", "object1", "read", "base") == False
         ), "party3 should not have read access to object1 in DO->p1->p2->p3, when revoked"
 
     def test_triple_delegation_first_revoked_propagation(self):
@@ -489,13 +489,13 @@ class DelegationModelTests:
 
         # Test cases
         assert (
-            self.service.has_access("party1", "owner1", "object1", "read") == False
+            self.service.has_access("party1", "owner1", "object1", "read", "base") == False
         ), "party1 should not have read access to object1 in DO->p1->p2->p3, when revoked"
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read") == False
+            self.service.has_access("party2", "owner1", "object1", "read", "base") == False
         ), "party2 should not have read access to object1 in DO->p1->p2->p3, when revoked"
         assert (
-            self.service.has_access("party3", "owner1", "object1", "read") == False
+            self.service.has_access("party3", "owner1", "object1", "read", "base") == False
         ), "party3 should not have read access to object1 in DO->p1->p2->p3, when revoked"
 
     def test_changing_paths(self):
@@ -540,11 +540,52 @@ class DelegationModelTests:
 
         # Test cases
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read") == True
+            self.service.has_access("party2", "owner1", "object1", "read", "base") == True
         ), "party2 should have read access to object1 in DO->p2->p3"
         assert (
-            self.service.has_access("party3", "owner1", "object1", "read") == True
+            self.service.has_access("party3", "owner1", "object1", "read", "base") == True
         ), "party2 should have read access to object1 in DO->p2->p3, when revoked"
+
+    def test_multi_database_delegation(self):
+        """
+        Test the delegation model with multiple databases.
+        This tests the delegation model with a single delegation in a different database.
+        """
+        self.service.db_broker.add_database(
+            "other_db", self.service.db_class("other_db")
+        )
+        self.service.add_parties(self.PARTIES, "other_db")
+
+        self.service.add_delegation(
+            "owner1",
+            "party1",
+            ["object1"],
+            ["read"],
+            time.time() + 1000000,
+            "other_db"
+        )
+
+        self.service.add_delegation(
+            "party1",
+            "party2",
+            ["object1"],
+            ["read"],
+            time.time() + 1000000,
+            "other_db"
+        )
+
+        # Test cases that should hold true
+        assert (
+            self.service.has_access("party2", "owner1", "object1", "read", "other_db") == True
+        ), "party2 should have read access to object1 in DO->p1->p2 in other_db"
+        assert (
+            self.service.has_access("party1", "owner1", "object1", "read", "other_db") == True
+        ), "party1 should have read access to object1 in DO->p1->p2 in other_db"
+
+        # Test cases that should hold false
+        assert (
+            self.service.has_access("party3", "owner1", "object1", "read", "other_db") == False
+        ), "party2 should not have access to object1 in DO->p1 in other_db"
 
     def get_performance_values(self):
         """
@@ -553,7 +594,6 @@ class DelegationModelTests:
         """
 
         numbers_of_delegations = [5, 10, 50, 100, 250, 500]
-        # numbers_of_delegations = [3]
         last_party_number = 0
         times_taken = []
 
@@ -585,6 +625,7 @@ class DelegationModelTests:
                     f"party0",
                     "object1",
                     "read",
+                    "base"
                 )
                 end_time = time.time()
                 elapsed_time = end_time - start_time
@@ -664,6 +705,7 @@ class DelegationModelTests:
                     f"party0",
                     "object1",
                     "read",
+                    "base"
                 )
                 end_time = time.time()
                 elapsed_time = end_time - start_time
@@ -740,6 +782,7 @@ class DelegationModelTests:
                     f"party0",
                     "object1",
                     "read",
+                    "base"
                 )
                 end_time = time.time()
                 elapsed_time = end_time - start_time

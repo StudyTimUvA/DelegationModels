@@ -44,7 +44,7 @@ class AllPrevDelegationsService(base_service.BaseService):
 
         return False
 
-    def has_access(self, delegatee: str, data_owner: str, object: str, action: str) -> bool:
+    def has_access(self, delegatee: str, data_owner: str, object: str, action: str, db_name: str) -> bool:
         """
         Check if a delegatee has access to an object based on the evidence in the database.
 
