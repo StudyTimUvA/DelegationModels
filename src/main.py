@@ -20,25 +20,25 @@ if __name__ == "__main__":
     # oracle_tester.print_test_results(results)
 
     # The previous party model --------------------------------
-    prev_party_tester = tests.DelegationModelTests(
-        database.Database, database.DatabaseBroker, prevparty_service.PrevPartyService
-    )
-    results = prev_party_tester.generate_report("reports/prev_party_model.json", verbose=True)
-    # results = prev_party_tester.run_tests(verbose=False)
-    prev_party_tester.print_test_results(results)
-    exit(0)
+    # prev_party_tester = tests.DelegationModelTests(
+    #     database.Database, database.DatabaseBroker, prevparty_service.PrevPartyService
+    # )
+    # results = prev_party_tester.generate_report("reports/prev_party_model.json", verbose=True)
+    # # results = prev_party_tester.run_tests(verbose=False)
+    # prev_party_tester.print_test_results(results)
 
     # The previous delegation model ---------------------------
     prev_delegation_tester = tests.DelegationModelTests(
-        database.Database, prevdelegation_service.PrevDelegationService
+        database.Database, database.DatabaseBroker, prevdelegation_service.PrevDelegationService
     )
     results = prev_delegation_tester.generate_report("reports/prev_delegation_model.json")
     # results = prev_delegation_tester.run_tests(verbose=False)
     prev_delegation_tester.print_test_results(results)
+    exit(0)
 
     # The all previous delegation model -----------------------
     all_prev_delegation_tester = tests.DelegationModelTests(
-        database.Database, allprevdelegation_service.AllPrevDelegationsService
+        database.Database, database.DatabaseBroker, allprevdelegation_service.AllPrevDelegationsService
     )
     results = all_prev_delegation_tester.generate_report("reports/all_prev_delegation_model.json")
     # results = all_prev_delegation_tester.run_tests(verbose=False)

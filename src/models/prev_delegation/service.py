@@ -9,7 +9,7 @@ class PrevDelegationService(base_service.BaseService):
         """
         Get the previous delegation for a party and object.
         """
-        for evidence in self.db.get_evidence_by_party(party_id):
+        for db_name, evidence in self.db_broker.get_all_evidence_by_party(party_id):
             # Build a mapping from object_id to a list of actions
             object_actions = {}
             for rule in evidence.rules:
@@ -23,27 +23,28 @@ class PrevDelegationService(base_service.BaseService):
             if all(obj in object_actions for obj in object_ids) and all(
                 act in object_actions[obj] for obj in object_ids for act in actions
             ):
-                return evidence
+                return db_name, evidence
 
-        return None
+        return None, None
 
-    def add_delegation(self, party1, party2, objects, actions, expiry):
-        prev_delegation = self._get_prev_delegation(party1, objects, actions)
+    def add_delegation(self, party1, party2, objects, actions, expiry, database_name: str):
+        prev_db_name, prev_delegation = self._get_prev_delegation(party1, objects, actions)
 
         rule = evidence.Rule(
             object_ids=objects,
             actions=actions,
         )
         evid = prev_delegation_evidence.Evidence(
-            identifier=self.db.get_next_identifier(),
+            identifier=self.db_broker.get_database(database_name).get_next_identifier(),
             issuer=party1,
             receiver=party2,
             rules=[rule],
             valid_from=0,
             valid_untill=expiry,
             prev_delegation=prev_delegation,
+            prev_db_name=prev_db_name,
         )
-        self.db.add_evidence(evid)
+        self.db_broker.get_database(database_name).add_evidence(evid)
         return evid.identifier
 
     def party_has_access_to_object(self, party_id: str, object_id: str, action: str) -> bool:
@@ -59,7 +60,7 @@ class PrevDelegationService(base_service.BaseService):
         Returns:
             True if the party has access to the object, False otherwise.
         """
-        for evidence in self.db.get_evidence_by_party(party_id):
+        for evidence in self.db_broker.get_all_evidence_by_party(party_id):
             for rule in evidence.rules:
                 if rule.object_id == object_id and rule.permit and rule.action == action:
                     return True
@@ -125,10 +126,10 @@ class PrevDelegationService(base_service.BaseService):
         """
         Check if a party has recursive access to an object.
         """
-        evidences = self.db.get_evidence_by_party(current_party)
+        evidences = self.db_broker.get_all_evidence_by_party(current_party)
 
-        for evidence in evidences:
-            if evidence.identifier in self.db.revocations:
+        for db_name, evidence in evidences:
+            if evidence.identifier in self.db_broker.get_database(db_name).revocations:
                 continue
 
             if self._is_evidence_for_search(evidence, current_party, object, action):
@@ -141,7 +142,7 @@ class PrevDelegationService(base_service.BaseService):
 
         return False
 
-    def revoke_delegation(self, delegation_id: int) -> bool:
+    def revoke_delegation(self, delegation_id: int, database_name) -> bool:
         """
         Revoke a delegation in the database.
 
@@ -151,8 +152,8 @@ class PrevDelegationService(base_service.BaseService):
         Returns:
             True if the revocation was successful, False otherwise.
         """
-        evidence = self.db.get_evidence(delegation_id)
+        evidence = self.db_broker.get_database(database_name).get_evidence(delegation_id)
         if evidence:
-            self.db.revoke(delegation_id)
+            self.db_broker.get_database(database_name).revoke(delegation_id)
             return True
         return False
