@@ -24,7 +24,7 @@ class PrevPartyService(service.BaseService):
             valid_untill=expiry,
         )
         db.add_evidence(evid)
-        return evid.identifier
+        return evid
 
     def revoke_delegation(self, delegation_id, database_name):
         """

@@ -1,4 +1,5 @@
 from . import database
+from . import evidence
 from typing import List
 
 
@@ -31,7 +32,7 @@ class BaseService:
 
     def add_delegation(
         self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float, database_key: str
-    ) -> int:
+    ) -> evidence.Evidence:
         """
         Add a delegation from party1 to party2 in the database.
 

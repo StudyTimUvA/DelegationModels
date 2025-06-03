@@ -16,7 +16,7 @@ if __name__ == "__main__":
         oracleservice.OracleService,
         performance_test_count=1
     )
-    results = oracle_tester.generate_report("reports/oracle_model.json", verbose=True)
+    results = oracle_tester.generate_report("reports/oracle_model.json")
     # results = oracle_tester.run_tests(verbose=False)
     oracle_tester.print_test_results(results)
 
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     prev_party_tester = tests.DelegationModelTests(
         database.Database, database.DatabaseBroker, prevparty_service.PrevPartyService
     )
-    results = prev_party_tester.generate_report("reports/prev_party_model.json", verbose=True)
+    results = prev_party_tester.generate_report("reports/prev_party_model.json")
     # results = prev_party_tester.run_tests(verbose=False)
     prev_party_tester.print_test_results(results)
 

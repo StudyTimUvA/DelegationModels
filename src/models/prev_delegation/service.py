@@ -45,7 +45,7 @@ class PrevDelegationService(base_service.BaseService):
             prev_db_name=prev_db_name,
         )
         self.db_broker.get_database(database_name).add_evidence(evid)
-        return evid.identifier
+        return evid
 
     def party_has_access_to_object(self, party_id: str, object_id: str, action: str) -> bool:
         """

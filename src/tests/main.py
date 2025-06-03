@@ -203,7 +203,7 @@ class DelegationModelTests:
         Test the delegation model with a single delegation.
         data_owner -> party1.
         """
-        self.service.add_delegation(
+        evid = self.service.add_delegation(
             "owner1",
             "party1",
             ["object1"],
@@ -249,7 +249,7 @@ class DelegationModelTests:
             time.time() + 1000000,
             "base"
         )
-        self.service.add_delegation(
+        evid = self.service.add_delegation(
             "party2",
             "party3",
             ["object1"],
@@ -399,7 +399,7 @@ class DelegationModelTests:
         Test the delegation model with a simple revocation,
         data_owner -> party1, where party1 is revoked.
         """
-        identifier = self.service.add_delegation(
+        evid = self.service.add_delegation(
             "owner1",
             "party1",
             ["object1"],
@@ -407,7 +407,7 @@ class DelegationModelTests:
             time.time() + 1000000,
             "base"
         )
-        self.service.revoke_delegation(identifier, "base")
+        self.service.revoke_delegation(evid.identifier, "base")
 
         # Test cases that should hold true
         assert (
@@ -435,7 +435,7 @@ class DelegationModelTests:
             time.time() + 1000000,
             "base"
         )
-        identifier = self.service.add_delegation(
+        evid = self.service.add_delegation(
             "party2",
             "party3",
             ["object1"],
@@ -443,7 +443,7 @@ class DelegationModelTests:
             time.time() + 1000000,
             "base"
         )
-        self.service.revoke_delegation(identifier, "base")
+        self.service.revoke_delegation(evid.identifier, "base")
 
         # Test cases
         assert (
@@ -461,7 +461,7 @@ class DelegationModelTests:
         Test the delegation model with a triple delegation,
         data_owner -> party1 -> party2 -> party3, where party1 is revoked.
         """
-        identifier = self.service.add_delegation(
+        evid = self.service.add_delegation(
             "owner1",
             "party1",
             ["object1"],
@@ -485,7 +485,7 @@ class DelegationModelTests:
             time.time() + 1000000,
             "base"
         )
-        self.service.revoke_delegation(identifier, "base")
+        self.service.revoke_delegation(evid.identifier, "base")
 
         # Test cases
         assert (
@@ -503,7 +503,7 @@ class DelegationModelTests:
         Test the delegation model with changing paths,
         data_owner -> party1 -> party2 -> party3, where party1 is revoked and data_owner->party2 is added.
         """
-        identifier = self.service.add_delegation(
+        evid = self.service.add_delegation(
             "owner1",
             "party1",
             ["object1"],
@@ -527,7 +527,7 @@ class DelegationModelTests:
             time.time() + 1000000,
             "base"
         )
-        self.service.revoke_delegation(identifier, "base")
+        self.service.revoke_delegation(evid.identifier, "base")
 
         self.service.add_delegation(
             "owner1",

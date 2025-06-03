@@ -4,6 +4,7 @@ from typing import List
 from collections import deque
 
 from ..base import database as BaseDatabase
+from . import evidence
 
 
 class Bridge:
@@ -40,7 +41,7 @@ class Database(BaseDatabase.Database):
         pos = nx.circular_layout(self.graph, scale=1.5)
         nx.draw(self.graph, pos, with_labels=True)
         edge_labels = {
-            (u, v): f"{','.join(d.get('resources', []))}\n({','.join(d.get('actions', []))})"
+            (u, v): f"{','.join(d.get('objects', []))}\n({','.join(d.get('rights', []))})"
             for u, v, d in self.graph.edges(data=True)
         }
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels, font_size=8)
@@ -64,11 +65,11 @@ class Database(BaseDatabase.Database):
         if not self.graph.has_node(v): # Create a bridge
             self.outgoing_bridges[u] = self.outgoing_bridges.get(u, [])
             self.outgoing_bridges[u].append(Bridge(identifier, u, v, objects, rights))
-            return identifier
+            return evidence.Evidence(identifier)
         
         # Add an edge in the local graph
         self.graph.add_edge(u, v, id=identifier, objects=objects, rights=rights or [])
-        return identifier
+        return evidence.Evidence(identifier)
     
     def _in_graph_path_valid(self, owner_id, party_id, resource, action):
         paths = list(nx.all_simple_paths(self.graph, source=owner_id, target=party_id))

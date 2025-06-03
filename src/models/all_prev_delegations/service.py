@@ -131,7 +131,7 @@ class AllPrevDelegationsService(base_service.BaseService):
             ),
         )
         self.db_broker.get_database(database_name).add_evidence(evid)
-        return evid.identifier
+        return evid
 
     def revoke_delegation(self, delegation_id: int, database_name) -> bool:
         """
