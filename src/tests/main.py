@@ -9,14 +9,19 @@ import json
 
 
 class DelegationModelTests:
-    def __init__(self, db_class, database_broker_class, service_class, performance_time_limit=1, performance_test_count=5):
+    def __init__(
+        self,
+        db_class,
+        database_broker_class,
+        service_class,
+        performance_time_limit=1,
+        performance_test_count=5,
+    ):
         # Set up simulation components
         self.db_class = db_class
         self.database_broker_class = database_broker_class
         self.service = service_class(self.db_class, self.database_broker_class())
-        self.service.db_broker.add_database(
-            "base", self.service.db_class("base")
-        )
+        self.service.db_broker.add_database("base", self.service.db_class("base"))
 
         # Store performance test parameters
         self.performance_time_limit = performance_time_limit
@@ -68,7 +73,10 @@ class DelegationModelTests:
             for test_method in test_list:
                 test_name = test_method.__name__
                 self.service.db_broker.add_database(
-                    "base", self.service.db_class("base")  # TODO: this name should be retrieved from the database instance instead
+                    "base",
+                    self.service.db_class(
+                        "base"
+                    ),  # TODO: this name should be retrieved from the database instance instead
                 )
                 # TODO ADD PARTIES
                 self.service.add_parties(self.PARTIES, "base")
@@ -81,36 +89,28 @@ class DelegationModelTests:
                     results[category][test_name] = False
                     print(f"Test {test_name} failed: {e}") if verbose else None
 
-            if all(
-                result for result in results[category].values()
-            ):
+            if all(result for result in results[category].values()):
                 results["matches_expectation"][category] = True
             else:
                 results["matches_expectation"][category] = False
 
-        results = {
-            "tests": results
-        }
+        results = {"tests": results}
 
         # Performance test
-        self.service.db_broker.add_database(
-            "base", self.service.db_class("base")
-        )
+        self.service.db_broker.add_database("base", self.service.db_class("base"))
         performance_results = self.get_performance_values()
         results["performance"] = performance_results
 
         # # Reset database
-        self.service.db_broker.add_database(
-            "base", self.service.db_class("base")
-        )
+        self.service.db_broker.add_database("base", self.service.db_class("base"))
         performance_additional_parties = self.get_performance_values_additional_parties()
         results["performance_additional_parties"] = performance_additional_parties
 
         # Reset database
-        self.service.db_broker.add_database(
-            "base", self.service.db_class("base")
+        self.service.db_broker.add_database("base", self.service.db_class("base"))
+        performance_related_additional_parties = (
+            self.get_performance_values_related_additional_parties()
         )
-        performance_related_additional_parties = self.get_performance_values_related_additional_parties()
         results["performance_related_additional_parties"] = performance_related_additional_parties
 
         # Add a summary per category
@@ -123,7 +123,6 @@ class DelegationModelTests:
             json.dump(results, f, indent=4)
 
         return results
-
 
     def run_tests(self, verbose=True) -> dict:
         """
@@ -191,7 +190,9 @@ class DelegationModelTests:
 
             for name, result in cat_results.items():
                 result_symbol = CHECK if result else CROSS
-                print(f"| {category:<{longest_cat_name}} | {name:<{longest_test_name}} | {result_symbol}      |")
+                print(
+                    f"| {category:<{longest_cat_name}} | {name:<{longest_test_name}} | {result_symbol}      |"
+                )
 
         print("-" * (longest_cat_name + longest_test_name + 16))
         print(f"Matches expectations: {results['matches_expectation']}")
@@ -204,12 +205,7 @@ class DelegationModelTests:
         data_owner -> party1.
         """
         evid = self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
         )
 
         # Test cases that should hold true
@@ -234,28 +230,13 @@ class DelegationModelTests:
         data_owner -> party1 -> party2 -> party3.
         """
         self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.add_delegation(
-            "party1",
-            "party2",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         evid = self.service.add_delegation(
-            "party2",
-            "party3",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party2", "party3", ["object1"], ["read"], time.time() + 1000000, "base"
         )
 
         # Test cases that should hold true
@@ -289,28 +270,13 @@ class DelegationModelTests:
         data_owner -> party1 -> party2 and data_owner -> party2.
         """
         self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.add_delegation(
-            "party1",
-            "party2",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.add_delegation(
-            "owner1",
-            "party2",
-            ["object1"],
-            ["read", "write"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party2", ["object1"], ["read", "write"], time.time() + 1000000, "base"
         )
 
         # Test cases that should hold true
@@ -338,20 +304,10 @@ class DelegationModelTests:
         data_owner -> party1 -> party2, where party1->party2 contains a subset of the rights of party1.
         """
         self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1", "object2"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party1", ["object1", "object2"], ["read"], time.time() + 1000000, "base"
         )
         self.service.add_delegation(
-            "party1",
-            "party2",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         # Test cases that should hold true
         assert (
@@ -375,12 +331,7 @@ class DelegationModelTests:
         party1 -> party2, where party1 has no access to object3.
         """
         delegation = self.service.add_delegation(
-            "party1",
-            "party2",
-            ["object3"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party1", "party2", ["object3"], ["read"], time.time() + 1000000, "base"
         )
 
         # Test cases that should hold true
@@ -400,12 +351,7 @@ class DelegationModelTests:
         data_owner -> party1, where party1 is revoked.
         """
         evid = self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.revoke_delegation(evid.identifier, "base")
 
@@ -420,28 +366,13 @@ class DelegationModelTests:
         data_owner -> party1 -> party2 -> party3, where party3 is revoked.
         """
         self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.add_delegation(
-            "party1",
-            "party2",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         evid = self.service.add_delegation(
-            "party2",
-            "party3",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party2", "party3", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.revoke_delegation(evid.identifier, "base")
 
@@ -462,28 +393,13 @@ class DelegationModelTests:
         data_owner -> party1 -> party2 -> party3, where party1 is revoked.
         """
         evid = self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.add_delegation(
-            "party1",
-            "party2",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.add_delegation(
-            "party2",
-            "party3",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party2", "party3", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.revoke_delegation(evid.identifier, "base")
 
@@ -504,38 +420,18 @@ class DelegationModelTests:
         data_owner -> party1 -> party2 -> party3, where party1 is revoked and data_owner->party2 is added.
         """
         evid = self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1"],
-            ["read"],
-            time.time() + 100000,
-            "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 100000, "base"
         )
         self.service.add_delegation(
-            "party1",
-            "party2",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.add_delegation(
-            "party2",
-            "party3",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "party2", "party3", ["object1"], ["read"], time.time() + 1000000, "base"
         )
         self.service.revoke_delegation(evid.identifier, "base")
 
         self.service.add_delegation(
-            "owner1",
-            "party2",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "base"
+            "owner1", "party2", ["object1"], ["read"], time.time() + 1000000, "base"
         )
 
         # Test cases
@@ -551,27 +447,15 @@ class DelegationModelTests:
         Test the delegation model with multiple databases.
         This tests the delegation model with a single delegation in a different database.
         """
-        self.service.db_broker.add_database(
-            "other_db", self.service.db_class("other_db")
-        )
+        self.service.db_broker.add_database("other_db", self.service.db_class("other_db"))
         self.service.add_parties(self.PARTIES, "other_db")
 
         self.service.add_delegation(
-            "owner1",
-            "party1",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "other_db"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "other_db"
         )
 
         self.service.add_delegation(
-            "party1",
-            "party2",
-            ["object1"],
-            ["read"],
-            time.time() + 1000000,
-            "other_db"
+            "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "other_db"
         )
 
         # Test cases that should hold true
@@ -613,7 +497,7 @@ class DelegationModelTests:
                     ["object1"],
                     ["read"],
                     time.time() + 1000000,
-                    "base"
+                    "base",
                 )
                 last_party_number += 1
 
@@ -621,11 +505,7 @@ class DelegationModelTests:
             for _ in range(self.performance_test_count):
                 start_time = time.time()
                 success = self.service.has_access(
-                    f"party{last_party_number - 1}",
-                    f"party0",
-                    "object1",
-                    "read",
-                    "base"
+                    f"party{last_party_number - 1}", f"party0", "object1", "read", "base"
                 )
                 end_time = time.time()
                 elapsed_time = end_time - start_time
@@ -635,7 +515,7 @@ class DelegationModelTests:
                 assert (
                     elapsed_time < self.performance_time_limit
                 ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
-                
+
             elapsed_avg /= self.performance_test_count
 
             assert success, "Performance test failed, as access was expected, but failed."
@@ -643,7 +523,7 @@ class DelegationModelTests:
             times_taken.append(format(elapsed_avg, ".6f"))
 
         return dict(zip(numbers_of_delegations, times_taken))
-    
+
     def get_performance_values_additional_parties(self):
         """
         Test the performance of the delegation model with a growing number of parties and delegations.
@@ -665,7 +545,7 @@ class DelegationModelTests:
                 [f"object1"],
                 ["read"],
                 time.time() + 1000000,
-                "base"
+                "base",
             )
             last_party_number += 1
 
@@ -674,38 +554,24 @@ class DelegationModelTests:
         additional_delegations = [0, 5, 10, 50, 100, 500]
         times_taken = []
         parties = [f"party{i}" for i in range(number_of_delegations)]
-        links = [
-            (party, party2)
-            for party2 in parties
-            for party in parties
-            if party != party2
-        ]
+        links = [(party, party2) for party2 in parties for party in parties if party != party2]
         for idx, num_add_delegations in enumerate(additional_delegations):
             start = additional_delegations[idx - 1] if idx > 0 else 0
             end = additional_delegations[idx]
             for source, target in links[start:end]:
                 self.service.add_delegation(
-                    source,
-                    target,
-                    [f"object2"],
-                    ["read"],
-                    time.time() + 1000000,
-                    "base"
+                    source, target, [f"object2"], ["read"], time.time() + 1000000, "base"
                 )
 
             # self.service.db.visualize_graph(f"delegation_graph_{num_add_delegations}.png")
             # for entry in self.service.db.graph.edges(data=True):
-                # print(entry)
+            # print(entry)
 
             elapsed_avg = 0
             for _ in range(self.performance_test_count):
                 start_time = time.time()
                 success = self.service.has_access(
-                    f"party{number_of_delegations}",
-                    f"party0",
-                    "object1",
-                    "read",
-                    "base"
+                    f"party{number_of_delegations}", f"party0", "object1", "read", "base"
                 )
                 end_time = time.time()
                 elapsed_time = end_time - start_time
@@ -717,7 +583,7 @@ class DelegationModelTests:
                 assert (
                     elapsed_time < self.performance_time_limit
                 ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
-                
+
             elapsed_avg /= self.performance_test_count
 
             assert success, "Performance test failed, as access was expected, but failed."
@@ -725,7 +591,7 @@ class DelegationModelTests:
             times_taken.append(format(elapsed_avg, ".6f"))
 
         return dict(zip(additional_delegations, times_taken))
-    
+
     def get_performance_values_related_additional_parties(self):
         number_of_delegations = 250
         number_of_additional_parties = 500
@@ -744,7 +610,7 @@ class DelegationModelTests:
                 [f"object1"],
                 ["read"],
                 time.time() + 1000000,
-                "base"
+                "base",
             )
             last_party_number += 1
 
@@ -752,7 +618,7 @@ class DelegationModelTests:
         times_taken = []
 
         initial_parties = [f"party{i}" for i in range(number_of_delegations)]
-        additional_parties = [f"party{i}" for i in range(number_of_delegations, total_parties+1)]
+        additional_parties = [f"party{i}" for i in range(number_of_delegations, total_parties + 1)]
         links = [
             (initial_party, additional_party)
             for additional_party in additional_parties
@@ -764,12 +630,7 @@ class DelegationModelTests:
             end = additional_delegations[idx]
             for source, target in links[start:end]:
                 self.service.add_delegation(
-                    source,
-                    target,
-                    [f"object1"],
-                    ["read"],
-                    time.time() + 1000000,
-                    "base"
+                    source, target, [f"object1"], ["read"], time.time() + 1000000, "base"
                 )
 
             # self.service.db.visualize_graph(f"delegation_graph_{num_add_delegations}.png")
@@ -778,11 +639,7 @@ class DelegationModelTests:
             for _ in range(self.performance_test_count):
                 start_time = time.time()
                 success = self.service.has_access(
-                    f"party{last_party_number - 1}",
-                    f"party0",
-                    "object1",
-                    "read",
-                    "base"
+                    f"party{last_party_number - 1}", f"party0", "object1", "read", "base"
                 )
                 end_time = time.time()
                 elapsed_time = end_time - start_time
@@ -792,7 +649,7 @@ class DelegationModelTests:
                 assert (
                     elapsed_time < self.performance_time_limit
                 ), f"Performance test failed, took {elapsed_time:.6f} seconds, expected less than {self.performance_time_limit:.6f} seconds."
-                
+
             elapsed_avg /= self.performance_test_count
 
             assert success, "Performance test failed, as access was expected, but failed."

@@ -88,7 +88,9 @@ class PrevPartyService(service.BaseService):
                         return True
 
                     # Recursively check if the issuer has access
-                    if self.has_access(evidence.issuer, data_owner, object_id, action, db_name, visited):
+                    if self.has_access(
+                        evidence.issuer, data_owner, object_id, action, db_name, visited
+                    ):
                         return True
 
         return False

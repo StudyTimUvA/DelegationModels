@@ -11,7 +11,13 @@ class OracleService(BaseService.BaseService):
     """
 
     def add_delegation(
-        self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float, db_name: str
+        self,
+        party1: str,
+        party2: str,
+        objects: List[str],
+        actions: List[str],
+        expiry: float,
+        db_name: str,
     ) -> int:
         """
         Add a delegation from party1 to party2 in the database.
@@ -33,7 +39,7 @@ class OracleService(BaseService.BaseService):
             objects=objects,
             actions=actions,
         )
-    
+
     def add_parties(self, party_ids: List[str], db_name: str):
         """
         Add multiple parties to the database.
@@ -44,11 +50,11 @@ class OracleService(BaseService.BaseService):
         """
         self.db_broker.get_database(db_name).add_parties(party_ids)
 
-    def has_access(self, party_id: str, owner_id: str, resource: str, action: str, db_name: str) -> bool:
+    def has_access(
+        self, party_id: str, owner_id: str, resource: str, action: str, db_name: str
+    ) -> bool:
         """Check if a party has access to a resource with a specific action."""
-        return self.db_broker.has_access(
-            party_id, owner_id, resource, action, db_name
-        )
+        return self.db_broker.has_access(party_id, owner_id, resource, action, db_name)
 
     def revoke_delegation(self, edge_id: int, database_name) -> bool:
         """
@@ -66,7 +72,7 @@ class OracleService(BaseService.BaseService):
             if data["id"] == edge_id:
                 db.graph.remove_edge(u, v)
                 return True
-            
+
         # If we reach here, the edge was not found, look in outgoing bridges
         for bridge in db.outgoing_bridges.get(edge_id, []):
             if bridge.id == edge_id:

@@ -14,7 +14,7 @@ if __name__ == "__main__":
         oracle_database.Database,
         oracle_database.DatabaseBroker,
         oracleservice.OracleService,
-        performance_test_count=1
+        performance_test_count=1,
     )
     results = oracle_tester.generate_report("reports/oracle_model.json")
     # results = oracle_tester.run_tests(verbose=False)
@@ -38,7 +38,9 @@ if __name__ == "__main__":
 
     # The all previous delegation model -----------------------
     all_prev_delegation_tester = tests.DelegationModelTests(
-        database.Database, database.DatabaseBroker, allprevdelegation_service.AllPrevDelegationsService
+        database.Database,
+        database.DatabaseBroker,
+        allprevdelegation_service.AllPrevDelegationsService,
     )
     results = all_prev_delegation_tester.generate_report("reports/all_prev_delegation_model.json")
     # results = all_prev_delegation_tester.run_tests(verbose=False)

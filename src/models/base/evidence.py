@@ -32,7 +32,7 @@ class Evidence:
         rules: list[Rule],
         valid_from: int,
         valid_untill: int,
-        db_name: str
+        db_name: str,
     ):
         """
         Initialize the Evidence object.

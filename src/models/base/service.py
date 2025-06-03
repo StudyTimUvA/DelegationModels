@@ -15,7 +15,9 @@ class BaseService:
         self.db_class = db_class
         self.db_broker = database_broker
 
-    def has_access(self, delegatee: str, data_owner: str, object: str, action: str, db_name: str) -> bool:
+    def has_access(
+        self, delegatee: str, data_owner: str, object: str, action: str, db_name: str
+    ) -> bool:
         """
         Check if a delegatee has access to an object based on the evidence in the database.
 
@@ -31,7 +33,13 @@ class BaseService:
         raise NotImplementedError("Not implemented yet!")
 
     def add_delegation(
-        self, party1: str, party2: str, objects: List[str], actions: List[str], expiry: float, database_key: str
+        self,
+        party1: str,
+        party2: str,
+        objects: List[str],
+        actions: List[str],
+        expiry: float,
+        database_key: str,
     ) -> evidence.Evidence:
         """
         Add a delegation from party1 to party2 in the database.
@@ -56,7 +64,7 @@ class BaseService:
             delegation_id: the ID of the delegation to be revoked.
         """
         raise NotImplementedError()
-    
+
     def add_parties(self, party_ids: List[str], database_key: str):
         """
         Add multiple parties to the database.
@@ -68,4 +76,3 @@ class BaseService:
             database_key: the name of the database to add parties to.
         """
         ...
-

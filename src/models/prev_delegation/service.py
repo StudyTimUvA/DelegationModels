@@ -118,12 +118,7 @@ class PrevDelegationService(base_service.BaseService):
         return False
 
     def has_access(
-        self,
-        current_party: str,
-        data_owner: str,
-        object: str,
-        action: str,
-        db_name: str
+        self, current_party: str, data_owner: str, object: str, action: str, db_name: str
     ) -> bool:
         """
         Check if a party has recursive access to an object.

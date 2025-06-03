@@ -44,7 +44,9 @@ class AllPrevDelegationsService(base_service.BaseService):
 
         return False
 
-    def has_access(self, delegatee: str, data_owner: str, object: str, action: str, db_name: str) -> bool:
+    def has_access(
+        self, delegatee: str, data_owner: str, object: str, action: str, db_name: str
+    ) -> bool:
         """
         Check if a delegatee has access to an object based on the evidence in the database.
 
@@ -69,8 +71,13 @@ class AllPrevDelegationsService(base_service.BaseService):
                     return True
 
                 found_revocation = False
-                for prev_db_name, prev_delegation in zip(evidence.prev_db_names, evidence.prev_delegations):
-                    if prev_delegation.identifier in self.db_broker.get_database(prev_db_name).revocations:
+                for prev_db_name, prev_delegation in zip(
+                    evidence.prev_db_names, evidence.prev_delegations
+                ):
+                    if (
+                        prev_delegation.identifier
+                        in self.db_broker.get_database(prev_db_name).revocations
+                    ):
                         found_revocation = True
                         break
 
@@ -81,7 +88,7 @@ class AllPrevDelegationsService(base_service.BaseService):
                         elif prev_delegation.issuer == last_authorizes:
                             last_authorizes = prev_delegation.receiver
                         else:
-                            break # Found invalid delegation link
+                            break  # Found invalid delegation link
 
                 if prev_delegation.receiver == evidence.issuer and not found_revocation:
                     return True

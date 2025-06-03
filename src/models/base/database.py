@@ -85,6 +85,7 @@ class DatabaseBroker:
     """This class functions as a broker for multiple databases, allowing to simulate a multi-AR test environment.
     In reality, this system would likely be implemented using a DNS (like system) to route requests to the appropriate database.
     """
+
     def __init__(self):
         self.databases = {}
 
@@ -109,7 +110,7 @@ class DatabaseBroker:
             The Database object if found, otherwise None.
         """
         return self.databases.get(db_name, None)
-    
+
     def get_database_entry(self, db_name: str, identifier: int):
         """
         Retrieve a specific entry from a database by its identifier.
@@ -125,7 +126,7 @@ class DatabaseBroker:
         if database:
             return database.get_evidence(identifier)
         return None
-    
+
     def get_evidence_by_party(self, db_name: str, party_id: str) -> List[evidence.Evidence]:
         """
         Retrieve all currently relevant evidence for a specific party from a specific database.
@@ -140,7 +141,7 @@ class DatabaseBroker:
         if database:
             return database.get_evidence_by_party(party_id)
         return []
-    
+
     def get_all_evidence_by_party(self, party_id: str) -> List[Tuple[str, evidence.Evidence]]:
         """
         Retrieve all currently relevant evidence for a specific party across all databases.

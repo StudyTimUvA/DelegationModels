@@ -48,7 +48,7 @@ class Database(BaseDatabase.Database):
         plt.title("Oracle Delegation Graph")
         plt.axis("off")
         plt.savefig(filename)
-        
+
     def add_node(self, node):
         self.graph.add_node(node)
 
@@ -59,18 +59,18 @@ class Database(BaseDatabase.Database):
     def add_edge(self, u, v, objects: List[str], rights, db_name: str):
         if not self.graph.has_node(u):
             raise ValueError(f"Node '{u}' does not exist in the graph.")
-        
+
         identifier = self.get_next_identifier()
 
-        if not self.graph.has_node(v): # Create a bridge
+        if not self.graph.has_node(v):  # Create a bridge
             self.outgoing_bridges[u] = self.outgoing_bridges.get(u, [])
             self.outgoing_bridges[u].append(Bridge(identifier, u, v, objects, rights))
             return evidence.Evidence(identifier, db_name=db_name)
-        
+
         # Add an edge in the local graph
         self.graph.add_edge(u, v, id=identifier, objects=objects, rights=rights or [])
         return evidence.Evidence(identifier, db_name=db_name)
-    
+
     def _in_graph_path_valid(self, owner_id, party_id, resource, action):
         paths = list(nx.all_simple_paths(self.graph, source=owner_id, target=party_id))
         for path in paths:
@@ -82,23 +82,24 @@ class Database(BaseDatabase.Database):
                 if edge_data is None:
                     valid_path = False
                     break
-                edge_data = edge_data[0] 
+                edge_data = edge_data[0]
 
-                if edge_data.get('id') is None:
+                if edge_data.get("id") is None:
                     valid_path = False
                     break
-                if edge_data.get('id') in self.revocations:
+                if edge_data.get("id") in self.revocations:
                     valid_path = False
                     break
-                if resource not in edge_data.get('objects', []) or action not in edge_data.get('rights', []):
+                if resource not in edge_data.get("objects", []) or action not in edge_data.get(
+                    "rights", []
+                ):
                     valid_path = False
                     break
 
             if valid_path:
                 return True
-            
-        return False
 
+        return False
 
     def _build_recursive_graph(self, party_id, resource, action, visited=None):
         """Recursively build a graph using the graph, to find all root parties that can access the resource with the action."""
@@ -106,7 +107,7 @@ class Database(BaseDatabase.Database):
             visited = set()
         if party_id in visited:
             return []
-        
+
         visited.add(party_id)
         roots = []
 
@@ -117,9 +118,9 @@ class Database(BaseDatabase.Database):
                     continue
 
                 valid_edge = any(
-                    edge.get("id") not in self.revocations and
-                    resource in edge.get("objects", []) and
-                    action in edge.get("rights", [])
+                    edge.get("id") not in self.revocations
+                    and resource in edge.get("objects", [])
+                    and action in edge.get("rights", [])
                     for edge in edge_data_list.values()
                 )
                 if not valid_edge:
@@ -129,13 +130,12 @@ class Database(BaseDatabase.Database):
 
         if not roots:
             roots.append(party_id)
-        
-        return roots
 
+        return roots
 
     def has_access(self, party_id: str, owner_id: str, resource: str, action: str):
         """Need to find a path from owner_id to party_id.
-        
+
         Returns True if there is a valid path between the owner and party with the correct resource and action.
 
         If there is no complete path, a list of parties is returned that, if any of them has access, the party_id will have access as well.
@@ -146,10 +146,10 @@ class Database(BaseDatabase.Database):
         if nodes_in_graph and nx.has_path(self.graph, owner_id, party_id):
             if self._in_graph_path_valid(owner_id, party_id, resource, action):
                 return True
-                
+
         # No complete path found, utilize bridges
         return self._build_recursive_graph(party_id, resource, action)
-    
+
     def has_bridges_to(self, node):
         """Check if there are any outgoing bridges from the given node."""
         return node in self.outgoing_bridges and len(self.outgoing_bridges[node]) > 0
@@ -160,22 +160,25 @@ class DatabaseBroker(BaseDatabase.DatabaseBroker):
     Database broker for the Oracle model.
     Inherits from the base DatabaseBroker class.
     """
+
     def add_link(self, from_db, from_node, to_node, objects, actions):
         if from_db not in self.databases:
             raise ValueError(f"Source DB {from_db} not registered.")
-        
+
         return self.databases[from_db].add_edge(
             from_node, to_node, objects, rights=actions, db_name=from_db
         )
 
-    def has_access(self, party_id: str, owner_id: str, resource: str, action: str, db_name: str) -> bool:
+    def has_access(
+        self, party_id: str, owner_id: str, resource: str, action: str, db_name: str
+    ) -> bool:
         """Check if a party has access to a resource with a specific action."""
         db = self.databases.get(db_name)
         access_or_roots = db.has_access(party_id, owner_id, resource, action)
 
         if access_or_roots is True:
             return True
-        
+
         # If the direct access check fails, recursively check for access through bridges
         for db in self.databases.values():
             for root in access_or_roots:
@@ -185,11 +188,9 @@ class DatabaseBroker(BaseDatabase.DatabaseBroker):
                         owner_id=root,
                         resource=resource,
                         action=action,
-                        db_name=db.name
+                        db_name=db.name,
                     )
                     if found:
                         return True
-                    
-        return False
-    
 
+        return False

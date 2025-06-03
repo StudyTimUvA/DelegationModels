@@ -6,6 +6,7 @@ import json
 import matplotlib.pyplot as plt
 import os
 
+
 def load_performance(report_path):
     """
     Load the report from the given path.
@@ -17,6 +18,7 @@ def load_performance(report_path):
     values = list(map(float, report.values()))
     return keys, values
 
+
 def load_performance_additional_parties(report_path):
     with open(report_path, "r") as f:
         report = json.load(f)["performance_additional_parties"]
@@ -25,6 +27,7 @@ def load_performance_additional_parties(report_path):
     values = list(map(float, report.values()))
     return keys, values
 
+
 def load_performance_related_additional_parties(report_path):
     with open(report_path, "r") as f:
         report = json.load(f)["performance_related_additional_parties"]
@@ -32,6 +35,7 @@ def load_performance_related_additional_parties(report_path):
     keys = list(map(int, report.keys()))
     values = list(map(float, report.values()))
     return keys, values
+
 
 def get_report_names():
     """
@@ -42,6 +46,7 @@ def get_report_names():
         if file.endswith(".json"):
             report_names.append(file)
     return report_names
+
 
 if __name__ == "__main__":
     reports = get_report_names()
@@ -58,7 +63,9 @@ if __name__ == "__main__":
         performance_additional_parties = load_performance_additional_parties(report_path)
         scores_additional_parties.append(performance_additional_parties)
 
-        performance_related_additional_parties = load_performance_related_additional_parties(report_path)
+        performance_related_additional_parties = load_performance_related_additional_parties(
+            report_path
+        )
         scores_related_additional_parties.append(performance_related_additional_parties)
 
     # Create a plot for plain performance
