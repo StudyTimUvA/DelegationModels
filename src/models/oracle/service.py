@@ -48,7 +48,7 @@ class OracleService(BaseService.BaseService):
         """Check if a party has access to a resource with a specific action."""
         return self.db_broker.has_access(
             party_id, owner_id, resource, action, db_name
-        )  # TODO: note that this hardcoded database name is a temporary solution!
+        )
 
     def revoke_delegation(self, edge_id: int, database_name) -> bool:
         """

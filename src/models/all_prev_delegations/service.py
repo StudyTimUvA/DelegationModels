@@ -123,6 +123,7 @@ class AllPrevDelegationsService(base_service.BaseService):
             rules=[rule],
             valid_from=0,
             valid_untill=expiry,
+            db_name=database_name,
             prev_delegations=(
                 prev_delegation.prev_delegations + [prev_delegation] if prev_delegation else []
             ),

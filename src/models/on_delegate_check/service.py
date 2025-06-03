@@ -20,6 +20,7 @@ class OnDelegateCheckService(base_service.BaseService):
             rules=[rule],
             valid_from=0,
             valid_untill=expiry,
+            db_name=database_name,
         )
         self.db_broker.get_database(database_name).add_evidence(evid)
         return evid

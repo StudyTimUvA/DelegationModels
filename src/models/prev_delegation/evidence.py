@@ -15,6 +15,7 @@ class Evidence(base_evidence.Evidence):
         rules: list[base_evidence.Rule],
         valid_from: int,
         valid_untill: int,
+        db_name: str,
         prev_delegation: int = None,
         prev_db_name: str = None,
     ):
@@ -25,6 +26,7 @@ class Evidence(base_evidence.Evidence):
             rules=rules,
             valid_from=valid_from,
             valid_untill=valid_untill,
+            db_name=db_name,
         )
         self.prev_delegation = prev_delegation
         self.prev_db_name = prev_db_name

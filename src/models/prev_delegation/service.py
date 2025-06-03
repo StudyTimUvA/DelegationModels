@@ -41,6 +41,7 @@ class PrevDelegationService(base_service.BaseService):
             rules=[rule],
             valid_from=0,
             valid_untill=expiry,
+            db_name=database_name,
             prev_delegation=prev_delegation,
             prev_db_name=prev_db_name,
         )

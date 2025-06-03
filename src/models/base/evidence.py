@@ -32,6 +32,7 @@ class Evidence:
         rules: list[Rule],
         valid_from: int,
         valid_untill: int,
+        db_name: str
     ):
         """
         Initialize the Evidence object.
@@ -50,3 +51,4 @@ class Evidence:
         self.issuer = issuer
         self.receiver = receiver
         self.rules = rules
+        self.db_name = db_name

@@ -56,7 +56,7 @@ class Database(BaseDatabase.Database):
         for node in nodes:
             self.add_node(node)
 
-    def add_edge(self, u, v, objects: List[str], rights=None):
+    def add_edge(self, u, v, objects: List[str], rights, db_name: str):
         if not self.graph.has_node(u):
             raise ValueError(f"Node '{u}' does not exist in the graph.")
         
@@ -65,11 +65,11 @@ class Database(BaseDatabase.Database):
         if not self.graph.has_node(v): # Create a bridge
             self.outgoing_bridges[u] = self.outgoing_bridges.get(u, [])
             self.outgoing_bridges[u].append(Bridge(identifier, u, v, objects, rights))
-            return evidence.Evidence(identifier)
+            return evidence.Evidence(identifier, db_name=db_name)
         
         # Add an edge in the local graph
         self.graph.add_edge(u, v, id=identifier, objects=objects, rights=rights or [])
-        return evidence.Evidence(identifier)
+        return evidence.Evidence(identifier, db_name=db_name)
     
     def _in_graph_path_valid(self, owner_id, party_id, resource, action):
         paths = list(nx.all_simple_paths(self.graph, source=owner_id, target=party_id))
@@ -165,7 +165,7 @@ class DatabaseBroker(BaseDatabase.DatabaseBroker):
             raise ValueError(f"Source DB {from_db} not registered.")
         
         return self.databases[from_db].add_edge(
-            from_node, to_node, objects=objects or [], rights=actions or []
+            from_node, to_node, objects, rights=actions, db_name=from_db
         )
 
     def has_access(self, party_id: str, owner_id: str, resource: str, action: str, db_name: str) -> bool:

@@ -22,6 +22,7 @@ class PrevPartyService(service.BaseService):
             rules=[rule],
             valid_from=0,
             valid_untill=expiry,
+            db_name=database_name,
         )
         db.add_evidence(evid)
         return evid
