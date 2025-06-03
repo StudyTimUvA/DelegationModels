@@ -1,7 +1,7 @@
 from ..base import service as base_service
 from typing import List
 from . import evidence as all_prev_delegation_evidence
-from ..base import evidence
+from ..base import evidence as base_evidence
 
 
 class AllPrevDelegationsService(base_service.BaseService):
@@ -31,7 +31,7 @@ class AllPrevDelegationsService(base_service.BaseService):
 
     def _is_evidence_for_search(
         self,
-        evidence: evidence.Evidence,
+        evidence: base_evidence.Evidence,
         object_id: str,
         action: str,
     ):
@@ -103,6 +103,7 @@ class AllPrevDelegationsService(base_service.BaseService):
         actions: List[str],
         expiry: float,
         database_name: str = None,
+        evidence=None,
     ) -> int:
         """
         Add a delegation from party1 to party2 in the database.
@@ -119,7 +120,7 @@ class AllPrevDelegationsService(base_service.BaseService):
         """
         prev_db_name, prev_delegation = self._get_prev_delegation(party1, objects, actions)
 
-        rule = evidence.Rule(
+        rule = base_evidence.Rule(
             object_ids=objects,
             actions=actions,
         )

@@ -1,5 +1,5 @@
 from ..base import service as base_service
-from ..base import evidence
+from ..base import evidence as base_evidence
 
 
 class OnDelegateCheckService(base_service.BaseService):
@@ -8,13 +8,15 @@ class OnDelegateCheckService(base_service.BaseService):
     This class provides methods to interact with the OnDelegateCheck model.
     """
 
-    def add_delegation(self, party1, party2, objects, actions, expiry, database_name: str):
-        rule = evidence.Rule(
+    def add_delegation(
+        self, party1, party2, objects, actions, expiry, database_name: str, evidence=None
+    ):
+        rule = base_evidence.Rule(
             object_ids=objects,
             actions=actions,
         )
 
-        evid = evidence.Evidence(
+        evid = base_evidence.Evidence(
             identifier=self.db_broker.get_database(database_name).get_next_identifier(),
             issuer=party1,
             receiver=party2,

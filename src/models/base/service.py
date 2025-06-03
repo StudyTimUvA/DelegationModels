@@ -40,6 +40,7 @@ class BaseService:
         actions: List[str],
         expiry: float,
         database_key: str,
+        evidence: evidence.Evidence = None,
     ) -> evidence.Evidence:
         """
         Add a delegation from party1 to party2 in the database.
@@ -50,6 +51,8 @@ class BaseService:
             objects: a list of objects being delegated.
             actions: a list of actions that can be performed on the objects.
             expiry: the expiration time of the delegation.
+            database_key: the name of the database to add the delegation to.
+            evidence: an optional Evidence object containing informaion about the delegation the new one is based on.
 
         Returns:
             The ID of the newly added delegation.

@@ -18,6 +18,7 @@ class OracleService(BaseService.BaseService):
         actions: List[str],
         expiry: float,
         db_name: str,
+        evidence=None,
     ) -> int:
         """
         Add a delegation from party1 to party2 in the database.
@@ -38,6 +39,7 @@ class OracleService(BaseService.BaseService):
             to_node=party2,
             objects=objects,
             actions=actions,
+            evidence=evidence,
         )
 
     def add_parties(self, party_ids: List[str], db_name: str):

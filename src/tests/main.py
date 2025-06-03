@@ -35,7 +35,7 @@ class DelegationModelTests:
             "party4",
         ]
 
-    def generate_report(self, filename: str, expectations: dict = None, verbose=False) -> dict:
+    def generate_report(self, filename: str, expectations: dict = None, verbose=True) -> dict:
         """
         Generate a report of the test results and save it to a json file.
 
@@ -205,7 +205,7 @@ class DelegationModelTests:
         data_owner -> party1.
         """
         evid = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base", evidence=None
         )
 
         # Test cases that should hold true

@@ -1,6 +1,6 @@
 from ..base import service as base_service
 from . import evidence as prev_delegation_evidence
-from ..base import evidence
+from ..base import evidence as base_evidence
 from typing import List
 
 
@@ -27,10 +27,12 @@ class PrevDelegationService(base_service.BaseService):
 
         return None, None
 
-    def add_delegation(self, party1, party2, objects, actions, expiry, database_name: str):
+    def add_delegation(
+        self, party1, party2, objects, actions, expiry, database_name: str, evidence=None
+    ):
         prev_db_name, prev_delegation = self._get_prev_delegation(party1, objects, actions)
 
-        rule = evidence.Rule(
+        rule = base_evidence.Rule(
             object_ids=objects,
             actions=actions,
         )
@@ -70,7 +72,7 @@ class PrevDelegationService(base_service.BaseService):
 
     def _is_evidence_for_search(
         self,
-        evidence: evidence.Evidence,
+        evidence: base_evidence.Evidence,
         party_id: str,
         object_id: str,
         action: str,
@@ -91,7 +93,7 @@ class PrevDelegationService(base_service.BaseService):
     def has_recursive_access(
         self,
         evidence_identifier: int,
-        evidence: evidence.Evidence,
+        evidence: base_evidence.Evidence,
         data_owner: str,
         object_id: str,
         action: str,
