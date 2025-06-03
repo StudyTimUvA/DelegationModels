@@ -170,7 +170,7 @@ class DatabaseBroker(BaseDatabase.DatabaseBroker):
         )
 
     def has_access(
-        self, party_id: str, owner_id: str, resource: str, action: str, db_name: str
+        self, party_id: str, owner_id: str, resource: str, action: str, db_name: str, evidence
     ) -> bool:
         """Check if a party has access to a resource with a specific action."""
         db = self.databases.get(db_name)

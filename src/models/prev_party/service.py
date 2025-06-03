@@ -54,6 +54,7 @@ class PrevPartyService(service.BaseService):
         object_id: str,
         action: str,
         db_name: str,
+        evidence: base_evidence.Evidence,
         visited=None,
     ) -> bool:
         """
@@ -73,6 +74,10 @@ class PrevPartyService(service.BaseService):
         if visited is None:
             visited = set()
 
+        if evidence and evidence.identifier in self.db_broker.get_database(db_name).revocations:
+            # If the evidence is revoked, no need to check further
+            return False
+
         # Avoid cycles
         if current_party in visited:
             return False
@@ -80,7 +85,8 @@ class PrevPartyService(service.BaseService):
         visited.add(current_party)
 
         # Check if the current party has direct access to the object
-        for db_name, evidence in self.db_broker.get_all_evidence_by_party(current_party):
+        # for db_name, evidence in self.db_broker.get_all_evidence_by_party(current_party):
+        for evidence in self.db_broker.get_database(evidence.db_name).get_evidence_by_party(current_party):
             for rule in evidence.rules:
                 if evidence.identifier in self.db_broker.get_database(db_name).revocations:
                     continue
@@ -91,7 +97,7 @@ class PrevPartyService(service.BaseService):
 
                     # Recursively check if the issuer has access
                     if self.has_access(
-                        evidence.issuer, data_owner, object_id, action, db_name, visited
+                        evidence.issuer, data_owner, object_id, action, db_name, evidence, visited
                     ):
                         return True
 

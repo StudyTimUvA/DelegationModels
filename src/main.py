@@ -28,6 +28,7 @@ if __name__ == "__main__":
     # results = prev_party_tester.run_tests(verbose=False)
     prev_party_tester.print_test_results(results)
 
+
     # The previous delegation model ---------------------------
     prev_delegation_tester = tests.DelegationModelTests(
         database.Database, database.DatabaseBroker, prevdelegation_service.PrevDelegationService
