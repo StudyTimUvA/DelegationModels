@@ -30,7 +30,8 @@ class PrevDelegationService(base_service.BaseService):
     def add_delegation(
         self, party1, party2, objects, actions, expiry, database_name: str, evidence=None
     ):
-        prev_db_name, prev_delegation = self._get_prev_delegation(party1, objects, actions)
+        prev_db_name = evidence.db_name if evidence else database_name
+        prev_delegation = evidence
 
         rule = base_evidence.Rule(
             object_ids=objects,

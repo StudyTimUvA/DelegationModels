@@ -118,7 +118,8 @@ class AllPrevDelegationsService(base_service.BaseService):
         Returns:
             The ID of the newly added delegation.
         """
-        prev_db_name, prev_delegation = self._get_prev_delegation(party1, objects, actions)
+        prev_db_name = evidence.db_name if evidence else database_name
+        prev_delegation = evidence
 
         rule = base_evidence.Rule(
             object_ids=objects,
