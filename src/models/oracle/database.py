@@ -48,6 +48,7 @@ class Database(BaseDatabase.Database):
         plt.title("Oracle Delegation Graph")
         plt.axis("off")
         plt.savefig(filename)
+        plt.close()
 
     def add_node(self, node):
         self.graph.add_node(node)
@@ -117,7 +118,7 @@ class Database(BaseDatabase.Database):
                 if not edge_data_list:
                     continue
 
-                valid_edge = any(
+                valid_edge = all(
                     edge.get("id") not in self.revocations
                     and resource in edge.get("objects", [])
                     and action in edge.get("rights", [])
@@ -127,6 +128,15 @@ class Database(BaseDatabase.Database):
                     continue
 
                 roots.extend(self._build_recursive_graph(u, resource, action, visited))
+
+        for bridge_source, bridges in self.outgoing_bridges.items():
+            if bridge_source == party_id:
+                continue
+            for bridge in bridges:
+                if bridge.to_node == party_id and resource in bridge.objects and action in bridge.rights:
+                    roots.extend(
+                        self._build_recursive_graph(bridge_source, resource, action, visited)
+                    )
 
         if not roots:
             roots.append(party_id)
@@ -152,7 +162,12 @@ class Database(BaseDatabase.Database):
 
     def has_bridges_to(self, node):
         """Check if there are any outgoing bridges from the given node."""
-        return node in self.outgoing_bridges and len(self.outgoing_bridges[node]) > 0
+        for source, bridges in self.outgoing_bridges.items():
+            if source == node:
+                continue
+            for bridge in bridges:
+                if bridge.to_node == node:
+                    return True
 
 
 class DatabaseBroker(BaseDatabase.DatabaseBroker):
@@ -178,17 +193,23 @@ class DatabaseBroker(BaseDatabase.DatabaseBroker):
 
         if access_or_roots is True:
             return True
+        
+        for root in access_or_roots:
+            if root == owner_id:
+                return True
 
+        # TODO: this is a broadcast, and should be removed!
         # If the direct access check fails, recursively check for access through bridges
         for db in self.databases.values():
             for root in access_or_roots:
                 if db.has_bridges_to(root):
                     found = self.has_access(
                         party_id=root,
-                        owner_id=root,
+                        owner_id=owner_id,
                         resource=resource,
                         action=action,
                         db_name=db.name,
+                        evidence=evidence,
                     )
                     if found:
                         return True

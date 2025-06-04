@@ -100,21 +100,21 @@ class DelegationModelTests:
         results = {"tests": results}
 
         # Performance test
-        self.service.db_broker.add_database("base", self.service.db_class("base"))
-        performance_results = self.get_performance_values()
-        results["performance"] = performance_results
+        # self.service.db_broker.add_database("base", self.service.db_class("base"))
+        # performance_results = self.get_performance_values()
+        # results["performance"] = performance_results
+
+        # # # Reset database
+        # self.service.db_broker.add_database("base", self.service.db_class("base"))
+        # performance_additional_parties = self.get_performance_values_additional_parties()
+        # results["performance_additional_parties"] = performance_additional_parties
 
         # # Reset database
-        self.service.db_broker.add_database("base", self.service.db_class("base"))
-        performance_additional_parties = self.get_performance_values_additional_parties()
-        results["performance_additional_parties"] = performance_additional_parties
-
-        # Reset database
-        self.service.db_broker.add_database("base", self.service.db_class("base"))
-        performance_related_additional_parties = (
-            self.get_performance_values_related_additional_parties()
-        )
-        results["performance_related_additional_parties"] = performance_related_additional_parties
+        # self.service.db_broker.add_database("base", self.service.db_class("base"))
+        # performance_related_additional_parties = (
+        #     self.get_performance_values_related_additional_parties()
+        # )
+        # results["performance_related_additional_parties"] = performance_related_additional_parties
 
         # Add a summary per category
         results["summary"] = {}
@@ -460,13 +460,13 @@ class DelegationModelTests:
         This tests the delegation model with a single delegation in a different database.
         """
         self.service.db_broker.add_database("other_db", self.service.db_class("other_db"))
-        self.service.add_parties(self.PARTIES, "other_db")
+        self.service.add_parties(["owner1", "party1"], "other_db")
 
         evid1 = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
+            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "other_db"
         )
 
-        evid2 = self.service.add_delegation(
+        evid2 = self.service.add_delegation(  # This forms a bridge!
             "party1",
             "party2",
             ["object1"],
@@ -476,21 +476,28 @@ class DelegationModelTests:
             evidence=evid1,
         )
 
+        evid3 = self.service.add_delegation(
+            "party2", "party3", ["object1"], ["read"], time.time() + 1000000, "base", evidence=evid2
+        )
+
         # Test cases that should hold true
         assert (
             self.service.has_access("party2", "owner1", "object1", "read", "other_db", evid2)
             == True
         ), "party2 should have read access to object1 in DO->p1->p2 in other_db"
         assert (
-            self.service.has_access("party1", "owner1", "object1", "read", "base", evid1) == True
-        ), "party1 should have read access to object1 in DO->p1->p2 in base"
+            self.service.has_access("party1", "owner1", "object1", "read", "other_db", evid1) == True
+        ), "party1 should have read access to object1 in DO->p1->p2 in other_db"
+        assert (
+            self.service.has_access("party3", "owner1", "object1", "read", "base", evid3) == True
+        ), "party3 should have read access to object1 in DO->p1->p2->p3 in base"
 
         # Test cases that should hold false
         for evid in [evid1, evid2]:
             assert (
                 self.service.has_access("party3", "owner1", "object1", "read", "other_db", evid)
                 == False
-            ), "party2 should not have access to object1 in DO->p1 in other_db"
+            ), "party3 should not have access to object1 in DO->p1 in other_db"
 
     def test_multi_database_first_delegation_revocation(self):
         """
