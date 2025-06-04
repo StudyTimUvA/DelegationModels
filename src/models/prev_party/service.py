@@ -86,7 +86,9 @@ class PrevPartyService(service.BaseService):
 
         # Check if the current party has direct access to the object
         # for db_name, evidence in self.db_broker.get_all_evidence_by_party(current_party):
-        for evidence in self.db_broker.get_database(evidence.db_name).get_evidence_by_party(current_party):
+        for evidence in self.db_broker.get_database(evidence.db_name).get_evidence_by_party(
+            current_party
+        ):
             for rule in evidence.rules:
                 if evidence.identifier in self.db_broker.get_database(db_name).revocations:
                     continue

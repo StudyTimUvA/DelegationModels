@@ -61,6 +61,6 @@ if __name__ == "__main__":
     concat_tester = tests.DelegationModelTests(
         database.Database, database.DatabaseBroker, concat_service.ConcatService
     )
-    results = concat_tester.generate_report("reports/concat_model.json", verbose=True)
+    results = concat_tester.generate_report("reports/concat_model.json")
     # results = concat_tester.run_tests(verbose=False)
     concat_tester.print_test_results(results)

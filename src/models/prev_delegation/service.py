@@ -121,7 +121,13 @@ class PrevDelegationService(base_service.BaseService):
         return False
 
     def has_access(
-        self, current_party: str, data_owner: str, object: str, action: str, db_name: str, evidence: base_evidence.Evidence
+        self,
+        current_party: str,
+        data_owner: str,
+        object: str,
+        action: str,
+        db_name: str,
+        evidence: base_evidence.Evidence,
     ) -> bool:
         """
         Check if a party has recursive access to an object.
@@ -137,8 +143,12 @@ class PrevDelegationService(base_service.BaseService):
                 return True
 
             # Recursively check if the issuer has access
-            prev_evidence = self.db_broker.get_database(evidence.prev_db_name).get_evidence(evidence.prev_delegation.identifier)
-            if self.has_access(evidence.issuer, data_owner, object, action, evidence.prev_db_name, prev_evidence):
+            prev_evidence = self.db_broker.get_database(evidence.prev_db_name).get_evidence(
+                evidence.prev_delegation.identifier
+            )
+            if self.has_access(
+                evidence.issuer, data_owner, object, action, evidence.prev_db_name, prev_evidence
+            ):
                 return True
 
         return False

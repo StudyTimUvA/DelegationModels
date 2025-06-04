@@ -2,8 +2,9 @@
     "tests": {
         "matches_expectation": {
             "basic_delegations": true,
-            "flexibility": true,
+            "flexibility": false,
             "revocation": true,
+            "multi_ar": true,
             "other": false
         },
         "basic_delegations": {
@@ -13,22 +14,57 @@
         "flexibility": {
             "test_parallel_paths": true,
             "test_partial_delegations": true,
-            "test_changing_paths": true
+            "test_changing_paths": false
         },
         "revocation": {
             "test_simple_revocation": true,
             "test_triple_delegation_final_revoked": true,
             "test_triple_delegation_first_revoked_propagation": true
         },
+        "multi_ar": {
+            "test_multi_database_delegation": true,
+            "test_multi_database_first_delegation_revocation": true,
+            "test_multi_database_parallel_paths": true
+        },
         "other": {
             "test_invalid_delegation": false
         }
     },
+    "performance": {
+        "5": "0.000003",
+        "10": "0.000004",
+        "50": "0.000020",
+        "100": "0.000076",
+        "250": "0.000160",
+        "500": "0.000295"
+    },
+    "performance_additional_parties": {
+        "0": "0.000144",
+        "5": "0.000144",
+        "10": "0.000140",
+        "50": "0.000145",
+        "100": "0.000145",
+        "500": "0.000147"
+    },
+    "performance_related_additional_parties": {
+        "0": "0.000164",
+        "5": "0.000155",
+        "10": "0.000156",
+        "25": "0.000156",
+        "50": "0.000164",
+        "100": "0.000162",
+        "250": "0.000164",
+        "500": "0.000162",
+        "1000": "0.000165",
+        "2500": "0.000160",
+        "5000": "0.000163"
+    },
     "summary": {
         "matches_expectation": false,
         "basic_delegations": true,
-        "flexibility": true,
+        "flexibility": false,
         "revocation": true,
+        "multi_ar": true,
         "other": false
     }
 }

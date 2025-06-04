@@ -61,7 +61,7 @@ class AllPrevDelegationsService(base_service.BaseService):
         """
         if evidence.identifier in self.db_broker.get_database(db_name).revocations:
             return False
-        
+
         if evidence.receiver != delegatee:  # Current evidence can not be used by the current party
             return False
 
