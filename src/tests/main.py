@@ -277,7 +277,7 @@ class DelegationModelTests:
             "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base", evidence=evid1
         )
         evid3 = self.service.add_delegation(
-            "owner1", "party2", ["object1"], ["read", "write"], time.time() + 1000000, "base", evidence=evid2
+            "owner1", "party2", ["object1"], ["read", "write"], time.time() + 1000000, "base"
         )
 
         # Test cases that should hold true

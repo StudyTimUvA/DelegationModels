@@ -5,6 +5,7 @@ from models.all_prev_delegations import service as allprevdelegation_service
 from models.oracle import database as oracle_database
 from models.oracle import service as oracleservice
 from models.on_delegate_check import service as ondelegatecheck_service
+from models.concat import service as concat_service
 
 import tests.main as tests
 
@@ -27,7 +28,6 @@ if __name__ == "__main__":
     results = prev_party_tester.generate_report("reports/prev_party_model.json")
     # results = prev_party_tester.run_tests(verbose=False)
     prev_party_tester.print_test_results(results)
-
 
     # The previous delegation model ---------------------------
     prev_delegation_tester = tests.DelegationModelTests(
@@ -56,3 +56,11 @@ if __name__ == "__main__":
     results = on_delegate_check_tester.generate_report("reports/on_delegate_check_model.json")
     # results = on_delegate_check_tester.run_tests(verbose=False)
     on_delegate_check_tester.print_test_results(results)
+
+    # The concat model ----------------------------------------
+    concat_tester = tests.DelegationModelTests(
+        database.Database, database.DatabaseBroker, concat_service.ConcatService
+    )
+    results = concat_tester.generate_report("reports/concat_model.json", verbose=True)
+    # results = concat_tester.run_tests(verbose=False)
+    concat_tester.print_test_results(results)
