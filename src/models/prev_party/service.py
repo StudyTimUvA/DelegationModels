@@ -1,4 +1,4 @@
-from ..base import database
+from .evidence import Evidence
 from ..base import service
 from ..base import evidence as base_evidence
 
@@ -17,7 +17,7 @@ class PrevPartyService(service.BaseService):
             actions=actions,
         )
 
-        evid = base_evidence.Evidence(
+        evid = Evidence(
             identifier=db.get_next_identifier(),
             issuer=party1,
             receiver=party2,
@@ -25,6 +25,7 @@ class PrevPartyService(service.BaseService):
             valid_from=0,
             valid_untill=expiry,
             db_name=database_name,
+            prev_db_name=evidence.db_name if evidence else None,
         )
         db.add_evidence(evid)
         return evid
@@ -54,7 +55,7 @@ class PrevPartyService(service.BaseService):
         object_id: str,
         action: str,
         db_name: str,
-        evidence: base_evidence.Evidence,
+        evidence: Evidence,
         visited=None,
     ) -> bool:
         """
@@ -84,13 +85,17 @@ class PrevPartyService(service.BaseService):
 
         visited.add(current_party)
 
+        evidences = self.db_broker.get_database(db_name).get_evidence_by_party(current_party)
+        if evidence.prev_db_name:
+            evidences.extend(
+                self.db_broker.get_database(evidence.prev_db_name).get_evidence_by_party(current_party)
+            )
+
         # Check if the current party has direct access to the object
         # for db_name, evidence in self.db_broker.get_all_evidence_by_party(current_party):
-        for evidence in self.db_broker.get_database(evidence.db_name).get_evidence_by_party(
-            current_party
-        ):
+        for evidence in evidences:
             for rule in evidence.rules:
-                if evidence.identifier in self.db_broker.get_database(db_name).revocations:
+                if evidence.identifier in self.db_broker.get_database(evidence.db_name).revocations:
                     continue
 
                 if object_id in rule.object_ids and action in rule.actions:
@@ -99,7 +104,7 @@ class PrevPartyService(service.BaseService):
 
                     # Recursively check if the issuer has access
                     if self.has_access(
-                        evidence.issuer, data_owner, object_id, action, db_name, evidence, visited
+                        evidence.issuer, data_owner, object_id, action, evidence.prev_db_name, evidence, visited
                     ):
                         return True
 

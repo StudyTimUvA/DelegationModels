@@ -84,7 +84,7 @@ class ConcatService(base_service.BaseService):
         if evidence.receiver != delegatee:
             return False
 
-        if self.evidence_is_revoked(evidence, db_name):
+        if self.evidence_is_revoked(evidence, evidence.db_name):
             return False
 
         new_evidence = evidence
@@ -94,7 +94,7 @@ class ConcatService(base_service.BaseService):
             if not is_relevant_evidence(new_evidence):
                 return False
 
-            if self.evidence_is_revoked(new_evidence, db_name):
+            if self.evidence_is_revoked(new_evidence, new_evidence.db_name):
                 return False
 
         if new_evidence.issuer != data_owner:
