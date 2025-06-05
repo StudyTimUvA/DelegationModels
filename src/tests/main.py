@@ -4,7 +4,6 @@ import json
 
 
 # TODO: Remove the database parameter, and instead put this directly in the services
-# TODO: Extend the performance test to include more than just the relevant delegations
 
 
 class DelegationModelTests:
@@ -665,9 +664,6 @@ class DelegationModelTests:
         Test the performance of the delegation model with a growing number of parties and delegations.
         This starts with a single long delegation chain, and then adds different delegations to the existing parties.
         """
-
-        # TODO this performance test requires some rethinking now that based_evidence is used
-        # return dict()
 
         number_of_delegations = 250
         last_party_number = 0
