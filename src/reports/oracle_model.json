@@ -4,7 +4,7 @@
             "basic_delegations": true,
             "flexibility": true,
             "revocation": true,
-            "multi_ar": false,
+            "multi_ar": true,
             "other": false
         },
         "basic_delegations": {
@@ -24,7 +24,7 @@
         "multi_ar": {
             "test_multi_database_delegation": true,
             "test_multi_database_first_delegation_revocation": true,
-            "test_multi_database_parallel_paths": false
+            "test_multi_database_parallel_paths": true
         },
         "other": {
             "test_invalid_delegation": false
@@ -35,7 +35,7 @@
         "basic_delegations": true,
         "flexibility": true,
         "revocation": true,
-        "multi_ar": false,
+        "multi_ar": true,
         "other": false
     }
 }

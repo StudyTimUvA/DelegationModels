@@ -537,19 +537,23 @@ class DelegationModelTests:
         """
         Test the delegation model with multiple databases and a parallel path
         """
+        OTHER_DB_PARTIES = [  # Limit parties to other databases to force bridges
+            "party_b1",
+        ]
+
         self.service.db_broker.add_database("other_db_left", self.service.db_class("other_db_left"))
-        self.service.add_parties(self.PARTIES, "other_db_left")
+        self.service.add_parties(OTHER_DB_PARTIES, "other_db_left")
 
         self.service.db_broker.add_database(
             "other_db_right", self.service.db_class("other_db_right")
         )
-        self.service.add_parties(self.PARTIES, "other_db_right")
+        self.service.add_parties(OTHER_DB_PARTIES, "other_db_right")
 
         evid1 = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read", "write"], time.time() + 1000000, "base"
+            "owner1", "party_b1", ["object1"], ["read", "write"], time.time() + 1000000, "base"
         )
         evid2 = self.service.add_delegation(
-            "party1",
+            "party_b1",
             "party2",
             ["object1"],
             ["read"],
@@ -558,7 +562,7 @@ class DelegationModelTests:
             evidence=evid1,
         )
         evid3 = self.service.add_delegation(
-            "party1",
+            "party_b1",
             "party3",
             ["object1"],
             ["write"],

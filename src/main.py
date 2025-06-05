@@ -17,10 +17,9 @@ if __name__ == "__main__":
         oracleservice.OracleService,
         performance_test_count=1,
     )
-    results = oracle_tester.generate_report("reports/oracle_model.json", verbose=True)
+    results = oracle_tester.generate_report("reports/oracle_model.json")
     # results = oracle_tester.run_tests(verbose=False)
     oracle_tester.print_test_results(results)
-    exit(0)
 
     # The previous party model --------------------------------
     prev_party_tester = tests.DelegationModelTests(

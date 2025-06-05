@@ -169,6 +169,8 @@ class Database(BaseDatabase.Database):
                 if bridge.to_node == node:
                     return True
 
+        return False
+
 
 class DatabaseBroker(BaseDatabase.DatabaseBroker):
     """
