@@ -4,6 +4,7 @@ import json
 
 
 # TODO: Remove the database parameter, and instead put this directly in the services
+# TODO: Add test for overlapping authorizations in a delegation
 
 
 class DelegationModelTests:
@@ -99,21 +100,21 @@ class DelegationModelTests:
         results = {"tests": results}
 
         # Performance test
-        # self.service.db_broker.add_database("base", self.service.db_class("base"))
-        # performance_results = self.get_performance_values()
-        # results["performance"] = performance_results
-
-        # # # Reset database
-        # self.service.db_broker.add_database("base", self.service.db_class("base"))
-        # performance_additional_parties = self.get_performance_values_additional_parties()
-        # results["performance_additional_parties"] = performance_additional_parties
+        self.service.db_broker.add_database("base", self.service.db_class("base"))
+        performance_results = self.get_performance_values()
+        results["performance"] = performance_results
 
         # # Reset database
-        # self.service.db_broker.add_database("base", self.service.db_class("base"))
-        # performance_related_additional_parties = (
-        #     self.get_performance_values_related_additional_parties()
-        # )
-        # results["performance_related_additional_parties"] = performance_related_additional_parties
+        self.service.db_broker.add_database("base", self.service.db_class("base"))
+        performance_additional_parties = self.get_performance_values_additional_parties()
+        results["performance_additional_parties"] = performance_additional_parties
+
+        # Reset database
+        self.service.db_broker.add_database("base", self.service.db_class("base"))
+        performance_related_additional_parties = (
+            self.get_performance_values_related_additional_parties()
+        )
+        results["performance_related_additional_parties"] = performance_related_additional_parties
 
         # Add a summary per category
         results["summary"] = {}
