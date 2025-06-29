@@ -6,10 +6,10 @@ import copy
 # TODO: fix the revocation mechanism
 
 class Evidence:
-    def __init__(self, receiver: str, macaroon: Macaroon):
+    def __init__(self, receiver: str, macaroon: Macaroon, delegation_identifier: str = None):
         self.receiver = receiver
         self.macaroon = macaroon
-        self.identifier = macaroon.identifier
+        self.identifier = delegation_identifier
 
 
 class Service(service.BaseService):
@@ -36,16 +36,13 @@ class Service(service.BaseService):
         """
         if not evidence:
             return False
-        
-        receiver = evidence.receiver
-        evidence = evidence.macaroon
-        
+         
         db = self.db_broker.get_database(db_name)
         if not db:
             return False
         
-        if evidence.identifier in db.revocations:
-            return False
+        receiver = evidence.receiver
+        evidence = evidence.macaroon
         
         if receiver != delegatee:
             return False
@@ -53,6 +50,14 @@ class Service(service.BaseService):
         verifier = Verifier()
         
         def check_caveat(x):
+            # Check for revocation caveats
+            if x.startswith("revocation_id:"):
+                _, db_name, identifier = x.split(":")
+                if identifier in self.db_broker.get_database(db_name).revocations:
+                    return False
+                return True
+
+            # Check for access caveats
             objects, actions = x.split(":")
             allowed_objects = objects.split(",")
             allowed_actions = actions.split(",")
@@ -119,7 +124,10 @@ class Service(service.BaseService):
         action_string = ",".join(actions)
         evidence.add_first_party_caveat(f'{object_string}:{action_string}')
 
-        return Evidence(receiver=party2, macaroon=evidence)
+        delegation_id = str(uuid.uuid4())
+        evidence.add_first_party_caveat(f'revocation_id:{database_key}:{delegation_id}')
+
+        return Evidence(receiver=party2, macaroon=evidence, delegation_identifier=delegation_id)
 
     def revoke_delegation(self, delegation_id: int, database_key: str):
         """

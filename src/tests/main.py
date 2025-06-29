@@ -13,7 +13,7 @@ class DelegationModelTests:
         database_broker_class,
         service_class,
         performance_time_limit=1,
-        performance_test_count=1,
+        performance_test_count=10,
     ):
         # Set up simulation components
         self.db_class = db_class
@@ -515,7 +515,6 @@ class DelegationModelTests:
         # Revoke the first delegation
         self.service.revoke_delegation(evid1.identifier, "base")
 
-        # Test cases that should hold true
         assert (
             self.service.has_access("party2", "owner1", "object1", "read", "other_db", evid2)
             == False
