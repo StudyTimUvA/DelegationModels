@@ -16,6 +16,13 @@ class Database:
         self.name = name
 
     def add_parties(self, party_ids: List[str]):
+        """
+        Add the parties to the database.
+        This method is optional, and is defined as a no-op by default.
+        
+        Params:
+                party_ids: a list of party IDs to be added.
+        """
         return
 
     def get_next_identifier(self):

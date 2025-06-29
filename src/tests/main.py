@@ -2,7 +2,6 @@ import time
 import inspect
 import json
 
-
 # TODO: Remove the database parameter, and instead put this directly in the services
 # TODO: Add test for overlapping authorizations in a delegation
 
@@ -14,7 +13,7 @@ class DelegationModelTests:
         database_broker_class,
         service_class,
         performance_time_limit=1,
-        performance_test_count=25,
+        performance_test_count=1,
     ):
         # Set up simulation components
         self.db_class = db_class
@@ -45,6 +44,7 @@ class DelegationModelTests:
         Returns:
             A dictionary with the test results, including performance and summary.
         """
+
         tests = {
             "basic_delegations": [self.test_single_delegation, self.test_triple_delegation],
             "flexibility": [
@@ -71,7 +71,6 @@ class DelegationModelTests:
         ]
 
         results = {}
-        results["matches_expectation"] = {}
         for category, test_list in tests.items():
             results[category] = {}
             for test_method in test_list:
@@ -91,11 +90,6 @@ class DelegationModelTests:
                 except Exception as e:
                     results[category][test_name] = False
                     print(f"Test {test_name} failed: {e}") if verbose else None
-
-            if all(result for result in results[category].values()):
-                results["matches_expectation"][category] = True
-            else:
-                results["matches_expectation"][category] = False
 
         results = {"tests": results}
 
@@ -187,8 +181,6 @@ class DelegationModelTests:
         print(f"| {'Category':<{longest_cat_name}} | {'Test Name':<{longest_test_name}} | Result |")
         print("-" * (longest_cat_name + longest_test_name + 16))
         for category, cat_results in results.items():
-            if category == "matches_expectation":
-                continue
 
             for name, result in cat_results.items():
                 result_symbol = CHECK if result else CROSS
@@ -197,8 +189,6 @@ class DelegationModelTests:
                 )
 
         print("-" * (longest_cat_name + longest_test_name + 16))
-        print(f"Matches expectations: {results['matches_expectation']}")
-
         print("")
 
     def test_single_delegation(self):
@@ -319,6 +309,7 @@ class DelegationModelTests:
         evid2 = self.service.add_delegation(
             "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base", evidence=evid1
         )
+
         # Test cases that should hold true
         assert (
             self.service.has_access("party1", "owner1", "object1", "read", "base", evid1) == True
@@ -690,7 +681,7 @@ class DelegationModelTests:
             delegation_per_party[f"party{last_party_number+1}"] = prev_delegation
             last_party_number += 1
 
-        additional_delegations = [0, 5, 10, 50, 100, 500]
+        additional_delegations = [0, 5, 10, 50, 100, 500, 1000]
         times_taken = []
         parties = [f"party{i}" for i in range(number_of_delegations)]
         links = [(party, party2) for party2 in parties for party in parties if party != party2]

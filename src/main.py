@@ -6,6 +6,8 @@ from models.oracle import database as oracle_database
 from models.oracle import service as oracleservice
 from models.on_delegate_check import service as ondelegatecheck_service
 from models.concat import service as concat_service
+from models.macaroons import database as macaroon_database
+from models.macaroons import service as macaroon_service
 
 import tests.main as tests
 
@@ -15,10 +17,8 @@ if __name__ == "__main__":
         oracle_database.Database,
         oracle_database.DatabaseBroker,
         oracleservice.OracleService,
-        performance_test_count=1,
     )
     results = oracle_tester.generate_report("reports/oracle_model.json")
-    # results = oracle_tester.run_tests(verbose=False)
     oracle_tester.print_test_results(results)
 
     # The previous party model --------------------------------
@@ -26,7 +26,6 @@ if __name__ == "__main__":
         database.Database, database.DatabaseBroker, prevparty_service.PrevPartyService
     )
     results = prev_party_tester.generate_report("reports/prev_party_model.json")
-    # results = prev_party_tester.run_tests(verbose=False)
     prev_party_tester.print_test_results(results)
 
     # The previous delegation model ---------------------------
@@ -34,7 +33,6 @@ if __name__ == "__main__":
         database.Database, database.DatabaseBroker, prevdelegation_service.PrevDelegationService
     )
     results = prev_delegation_tester.generate_report("reports/prev_delegation_model.json")
-    # results = prev_delegation_tester.run_tests(verbose=False)
     prev_delegation_tester.print_test_results(results)
 
     # The all previous delegation model -----------------------
@@ -44,7 +42,6 @@ if __name__ == "__main__":
         allprevdelegation_service.AllPrevDelegationsService,
     )
     results = all_prev_delegation_tester.generate_report("reports/all_prev_delegation_model.json")
-    # results = all_prev_delegation_tester.run_tests(verbose=False)
     all_prev_delegation_tester.print_test_results(results)
 
     # The on delegate check model ----------------------------
@@ -54,7 +51,6 @@ if __name__ == "__main__":
         ondelegatecheck_service.OnDelegateCheckService,
     )
     results = on_delegate_check_tester.generate_report("reports/on_delegate_check_model.json")
-    # results = on_delegate_check_tester.run_tests(verbose=False)
     on_delegate_check_tester.print_test_results(results)
 
     # The concat model ----------------------------------------
@@ -62,5 +58,14 @@ if __name__ == "__main__":
         database.Database, database.DatabaseBroker, concat_service.ConcatService
     )
     results = concat_tester.generate_report("reports/concat_model.json")
-    # results = concat_tester.run_tests(verbose=False)
     concat_tester.print_test_results(results)
+
+    # The macaroon model --------------------------------------
+    macaroon_tester = tests.DelegationModelTests(
+        macaroon_database.Database,
+        database.DatabaseBroker,
+        macaroon_service.Service,
+    )
+    results = macaroon_tester.generate_report("reports/macaroon_model.json", verbose=True)
+    # results = macaroon_tester.run_tests(verbose=False)
+    macaroon_tester.print_test_results(results)
