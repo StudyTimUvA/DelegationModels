@@ -2,9 +2,6 @@ import time
 import inspect
 import json
 
-# TODO: Remove the database parameter, and instead put this directly in the services
-# TODO: Add test for overlapping authorizations in a delegation
-
 
 class DelegationModelTests:
     def __init__(

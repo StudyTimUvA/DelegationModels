@@ -15,7 +15,7 @@ def load_performance(report_path):
         report = json.load(f)["performance"]
 
     keys = list(map(int, report.keys()))
-    values = list(map(float, report.values()))
+    values = list(map(lambda x: x * 1000, map(float, report.values())))
     return keys, values
 
 
@@ -24,7 +24,7 @@ def load_performance_additional_parties(report_path):
         report = json.load(f)["performance_additional_parties"]
 
     keys = list(map(int, report.keys()))
-    values = list(map(float, report.values()))
+    values = list(map(lambda x: x * 1000, map(float, report.values())))
     return keys, values
 
 
@@ -33,7 +33,7 @@ def load_performance_related_additional_parties(report_path):
         report = json.load(f)["performance_related_additional_parties"]
 
     keys = list(map(int, report.keys()))
-    values = list(map(float, report.values()))
+    values = list(map(lambda x: x * 1000, map(float, report.values())))  # convert to milliseconds
     return keys, values
 
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     for i, (keys, values) in enumerate(scores):
         ax.plot(keys, values, label=reports[i].replace(".json", ""))
     ax.set_xlabel("Number of Delegations")
-    ax.set_ylabel("Time (s)")
+    ax.set_ylabel("Time (ms)")
     ax.set_title("Performance of Delegation Models")
     ax.legend()
     plt.savefig("reports/performance_plot.png")
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     for i, (keys, values) in enumerate(scores_additional_parties):
         ax.plot(keys, values, label=reports[i].replace(".json", ""))
     ax.set_xlabel("Number of additional Delegations")
-    ax.set_ylabel("Time (s)")
+    ax.set_ylabel("Time (ms)")
     ax.set_title("Performance of Delegation Models with Additional Parties")
     ax.legend()
     plt.savefig("reports/performance_plot_additional_parties.png")
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     for i, (keys, values) in enumerate(scores_related_additional_parties):
         ax.plot(keys, values, label=reports[i].replace(".json", ""))
     ax.set_xlabel("Number of related additional Delegations")
-    ax.set_ylabel("Time (s)")
+    ax.set_ylabel("Time (ms)")
     ax.set_title("Performance of Delegation Models with Related Additional Parties")
     ax.legend()
     plt.savefig("reports/performance_plot_related_additional_parties.png")
