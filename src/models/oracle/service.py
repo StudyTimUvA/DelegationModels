@@ -50,9 +50,7 @@ class OracleService(BaseService.BaseService):
         """
         self.db_broker.get_database(db_name).add_parties(party_ids)
 
-    def has_access(
-        self, party_id: str, owner_id: str, resource: str, action: str, db_name: str, evidence
-    ) -> bool:
+    def has_access(self, party_id: str, owner_id: str, resource: str, action: str, db_name: str, evidence) -> bool:
         """Check if a party has access to a resource with a specific action."""
         return self.db_broker.has_access(party_id, owner_id, resource, action, db_name, evidence)
 

@@ -74,9 +74,7 @@ class ConcatService(base_service.BaseService):
 
     def has_access(self, delegatee, data_owner, object, action, db_name, evidence):
         def is_relevant_evidence(evidence):
-            return any(
-                object in rule.object_ids and action in rule.actions for rule in evidence.rules
-            )
+            return any(object in rule.object_ids and action in rule.actions for rule in evidence.rules)
 
         if not is_relevant_evidence(evidence):
             return False

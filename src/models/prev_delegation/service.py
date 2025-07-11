@@ -27,9 +27,7 @@ class PrevDelegationService(base_service.BaseService):
 
         return None, None
 
-    def add_delegation(
-        self, party1, party2, objects, actions, expiry, database_name: str, evidence=None
-    ):
+    def add_delegation(self, party1, party2, objects, actions, expiry, database_name: str, evidence=None):
         prev_db_name = evidence.db_name if evidence else database_name
         prev_delegation = evidence
 
@@ -82,11 +80,7 @@ class PrevDelegationService(base_service.BaseService):
         Check if the evidence is for the search.
         """
         for rule in evidence.rules:
-            if (
-                object_id in rule.object_ids
-                and action in rule.actions
-                and evidence.receiver == party_id
-            ):
+            if object_id in rule.object_ids and action in rule.actions and evidence.receiver == party_id:
                 return True
 
         return False
@@ -146,9 +140,7 @@ class PrevDelegationService(base_service.BaseService):
             prev_evidence = self.db_broker.get_database(evidence.prev_db_name).get_evidence(
                 evidence.prev_delegation.identifier
             )
-            if self.has_access(
-                evidence.issuer, data_owner, object, action, evidence.prev_db_name, prev_evidence
-            ):
+            if self.has_access(evidence.issuer, data_owner, object, action, evidence.prev_db_name, prev_evidence):
                 return True
 
         return False

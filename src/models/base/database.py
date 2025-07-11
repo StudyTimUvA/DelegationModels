@@ -19,7 +19,7 @@ class Database:
         """
         Add the parties to the database.
         This method is optional, and is defined as a no-op by default.
-        
+
         Params:
                 party_ids: a list of party IDs to be added.
         """
@@ -74,8 +74,7 @@ class Database:
         return [
             evidence
             for evidence in self.evidence.values()
-            if evidence.receiver == party_id
-            and evidence.valid_from <= time.time() <= evidence.valid_untill
+            if evidence.receiver == party_id and evidence.valid_from <= time.time() <= evidence.valid_untill
         ]
 
     def revoke(self, evidence_id: int):

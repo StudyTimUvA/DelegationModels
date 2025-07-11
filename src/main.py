@@ -54,9 +54,7 @@ if __name__ == "__main__":
     on_delegate_check_tester.print_test_results(results)
 
     # The concat model ----------------------------------------
-    concat_tester = tests.DelegationModelTests(
-        database.Database, database.DatabaseBroker, concat_service.ConcatService
-    )
+    concat_tester = tests.DelegationModelTests(database.Database, database.DatabaseBroker, concat_service.ConcatService)
     results = concat_tester.generate_report("reports/concat_model.json")
     concat_tester.print_test_results(results)
 
@@ -66,6 +64,6 @@ if __name__ == "__main__":
         database.DatabaseBroker,
         macaroon_service.Service,
     )
-    results = macaroon_tester.generate_report("reports/macaroon_model.json", verbose=True)
+    results = macaroon_tester.generate_report("reports/macaroon_model.json")
     # results = macaroon_tester.run_tests(verbose=False)
     macaroon_tester.print_test_results(results)

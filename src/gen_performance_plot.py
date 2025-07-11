@@ -63,15 +63,14 @@ if __name__ == "__main__":
         performance_additional_parties = load_performance_additional_parties(report_path)
         scores_additional_parties.append(performance_additional_parties)
 
-        performance_related_additional_parties = load_performance_related_additional_parties(
-            report_path
-        )
+        performance_related_additional_parties = load_performance_related_additional_parties(report_path)
         scores_related_additional_parties.append(performance_related_additional_parties)
 
     # Create a plot for plain performance
     fig, ax = plt.subplots(figsize=(10, 6))
     for i, (keys, values) in enumerate(scores):
         ax.plot(keys, values, label=reports[i].replace(".json", ""))
+        ax.scatter(keys, values, s=40)  # Add dots for each data point
     ax.set_xlabel("Number of Delegations")
     ax.set_ylabel("Time (ms)")
     ax.set_title("Performance of Delegation Models")
@@ -82,6 +81,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(10, 6))
     for i, (keys, values) in enumerate(scores_additional_parties):
         ax.plot(keys, values, label=reports[i].replace(".json", ""))
+        ax.scatter(keys, values, s=40)  # Add dots for each data point
     ax.set_xlabel("Number of additional Delegations")
     ax.set_ylabel("Time (ms)")
     ax.set_title("Performance of Delegation Models with Additional Parties")
@@ -92,10 +92,9 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(10, 6))
     for i, (keys, values) in enumerate(scores_related_additional_parties):
         ax.plot(keys, values, label=reports[i].replace(".json", ""))
+        ax.scatter(keys, values, s=40)  # Add dots for each data point
     ax.set_xlabel("Number of related additional Delegations")
     ax.set_ylabel("Time (ms)")
     ax.set_title("Performance of Delegation Models with Related Additional Parties")
     ax.legend()
     plt.savefig("reports/performance_plot_related_additional_parties.png")
-
-    # TODO: MAYBE CREATE A THREE DIMENSIONAL PLOT inputs: num related parties, num unrelated parties, and output time

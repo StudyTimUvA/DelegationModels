@@ -2,14 +2,9 @@ from .evidence import Evidence
 from ..base import service
 from ..base import evidence as base_evidence
 
-# TODO: remove the base main database, instead only use the broker
-# TODO: update the has_access method to work using the broker
-
 
 class PrevPartyService(service.BaseService):
-    def add_delegation(
-        self, party1, party2, objects, actions, expiry, database_name, evidence=None
-    ):
+    def add_delegation(self, party1, party2, objects, actions, expiry, database_name, evidence=None):
         db = self.db_broker.get_database(database_name)
 
         rule = base_evidence.Rule(
@@ -87,9 +82,7 @@ class PrevPartyService(service.BaseService):
 
         evidences = self.db_broker.get_database(db_name).get_evidence_by_party(current_party)
         if evidence.prev_db_name:
-            evidences.extend(
-                self.db_broker.get_database(evidence.prev_db_name).get_evidence_by_party(current_party)
-            )
+            evidences.extend(self.db_broker.get_database(evidence.prev_db_name).get_evidence_by_party(current_party))
 
         # Check if the current party has direct access to the object
         # for db_name, evidence in self.db_broker.get_all_evidence_by_party(current_party):

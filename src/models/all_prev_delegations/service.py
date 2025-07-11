@@ -44,9 +44,7 @@ class AllPrevDelegationsService(base_service.BaseService):
 
         return False
 
-    def has_access(
-        self, delegatee: str, data_owner: str, object: str, action: str, db_name: str, evidence
-    ) -> bool:
+    def has_access(self, delegatee: str, data_owner: str, object: str, action: str, db_name: str, evidence) -> bool:
         """
         Check if a delegatee has access to an object based on the evidence in the database.
 
@@ -71,13 +69,8 @@ class AllPrevDelegationsService(base_service.BaseService):
                 return True
 
             found_revocation = False
-            for prev_db_name, prev_delegation in zip(
-                evidence.prev_db_names, evidence.prev_delegations
-            ):
-                if (
-                    prev_delegation.identifier
-                    in self.db_broker.get_database(prev_db_name).revocations
-                ):
+            for prev_db_name, prev_delegation in zip(evidence.prev_db_names, evidence.prev_delegations):
+                if prev_delegation.identifier in self.db_broker.get_database(prev_db_name).revocations:
                     found_revocation = True
                     break
 
@@ -133,12 +126,8 @@ class AllPrevDelegationsService(base_service.BaseService):
             valid_from=0,
             valid_untill=expiry,
             db_name=database_name,
-            prev_delegations=(
-                prev_delegation.prev_delegations + [prev_delegation] if prev_delegation else []
-            ),
-            prev_db_names=(
-                prev_delegation.prev_db_names + [prev_db_name] if prev_delegation else []
-            ),
+            prev_delegations=(prev_delegation.prev_delegations + [prev_delegation] if prev_delegation else []),
+            prev_db_names=(prev_delegation.prev_db_names + [prev_db_name] if prev_delegation else []),
         )
         self.db_broker.get_database(database_name).add_evidence(evid)
         return evid

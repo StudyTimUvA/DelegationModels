@@ -74,9 +74,7 @@ class DelegationModelTests:
                 test_name = test_method.__name__
                 self.service.db_broker.add_database(
                     "base",
-                    self.service.db_class(
-                        "base"
-                    ),  # TODO: this name should be retrieved from the database instance instead
+                    self.service.db_class("base"),
                 )
                 self.service.add_parties(self.PARTIES, "base")
 
@@ -102,9 +100,7 @@ class DelegationModelTests:
 
         # Reset database
         self.service.db_broker.add_database("base", self.service.db_class("base"))
-        performance_related_additional_parties = (
-            self.get_performance_values_related_additional_parties()
-        )
+        performance_related_additional_parties = self.get_performance_values_related_additional_parties()
         results["performance_related_additional_parties"] = performance_related_additional_parties
 
         # Add a summary per category
@@ -172,8 +168,7 @@ class DelegationModelTests:
 
         longest_cat_name = max(len(name) for name in results.keys())
         longest_test_name = max(
-            max(len(test_name) for test_name in cat_results.keys())
-            for cat_results in results.values()
+            max(len(test_name) for test_name in cat_results.keys()) for cat_results in results.values()
         )
         print(f"| {'Category':<{longest_cat_name}} | {'Test Name':<{longest_test_name}} | Result |")
         print("-" * (longest_cat_name + longest_test_name + 16))
@@ -181,9 +176,7 @@ class DelegationModelTests:
 
             for name, result in cat_results.items():
                 result_symbol = CHECK if result else CROSS
-                print(
-                    f"| {category:<{longest_cat_name}} | {name:<{longest_test_name}} | {result_symbol}      |"
-                )
+                print(f"| {category:<{longest_cat_name}} | {name:<{longest_test_name}} | {result_symbol}      |")
 
         print("-" * (longest_cat_name + longest_test_name + 16))
         print("")
@@ -218,9 +211,7 @@ class DelegationModelTests:
         Test the delegation model with a triple delegation,
         data_owner -> party1 -> party2 -> party3.
         """
-        evid1 = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
-        )
+        evid1 = self.service.add_delegation("owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base")
         evid2 = self.service.add_delegation(
             "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base", evidence=evid1
         )
@@ -242,20 +233,16 @@ class DelegationModelTests:
         # Test cases that should hold false
         for evid in [evid1, evid2, evid3]:
             assert (
-                self.service.has_access("party1", "owner1", "object1", "write", "base", evid)
-                == False
+                self.service.has_access("party1", "owner1", "object1", "write", "base", evid) == False
             ), "party1 should not have write access to object1 in DO->p1->p2->p3"
             assert (
-                self.service.has_access("party2", "owner1", "object1", "write", "base", evid)
-                == False
+                self.service.has_access("party2", "owner1", "object1", "write", "base", evid) == False
             ), "party2 should not have write access to object1 in DO->p1->p2->p3"
             assert (
-                self.service.has_access("party3", "owner1", "object1", "write", "base", evid)
-                == False
+                self.service.has_access("party3", "owner1", "object1", "write", "base", evid) == False
             ), "party3 should not have write access to object1 in DO->p1->p2->p3"
             assert (
-                self.service.has_access("party4", "owner1", "object1", "read", "base", evid)
-                == False
+                self.service.has_access("party4", "owner1", "object1", "read", "base", evid) == False
             ), "party4 should have any access to object1 in DO->p1->p2->p3"
 
     def test_parallel_paths(self):
@@ -263,9 +250,7 @@ class DelegationModelTests:
         Test the delegation model with parallel paths (aka diveringing/converging paths),
         data_owner -> party1 -> party2 and data_owner -> party2.
         """
-        evid1 = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
-        )
+        evid1 = self.service.add_delegation("owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base")
         evid2 = self.service.add_delegation(
             "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base", evidence=evid1
         )
@@ -287,12 +272,10 @@ class DelegationModelTests:
         # Test cases that should hold false
         for evid in [evid1, evid2, evid3]:
             assert (
-                self.service.has_access("party1", "owner1", "object1", "write", "base", evid)
-                == False
+                self.service.has_access("party1", "owner1", "object1", "write", "base", evid) == False
             ), "party1 should not have write access to object1 in DO->p1->p2"
             assert (
-                self.service.has_access("party3", "owner1", "object1", "read", "base", evid)
-                == False
+                self.service.has_access("party3", "owner1", "object1", "read", "base", evid) == False
             ), "party3 should not have access to object1 in DO->p1->p2"
 
     def test_partial_delegations(self):
@@ -321,8 +304,7 @@ class DelegationModelTests:
         # Test cases that should hold false
         for evid in [evid1, evid2]:
             assert (
-                self.service.has_access("party2", "owner1", "object2", "read", "base", evid)
-                == False
+                self.service.has_access("party2", "owner1", "object2", "read", "base", evid) == False
             ), "party2 should not have read access to object2 in DO->p1->p2"
 
     def test_invalid_delegation(self):
@@ -350,9 +332,7 @@ class DelegationModelTests:
         Test the delegation model with a simple revocation,
         data_owner -> party1, where party1 is revoked.
         """
-        evid = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
-        )
+        evid = self.service.add_delegation("owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base")
         self.service.revoke_delegation(evid.identifier, "base")
 
         # Test cases that should hold true
@@ -365,9 +345,7 @@ class DelegationModelTests:
         Test the delegation model with a triple delegation,
         data_owner -> party1 -> party2 -> party3, where party3 is revoked.
         """
-        evid1 = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
-        )
+        evid1 = self.service.add_delegation("owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base")
         evid2 = self.service.add_delegation(
             "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base", evidence=evid1
         )
@@ -392,9 +370,7 @@ class DelegationModelTests:
         Test the delegation model with a triple delegation,
         data_owner -> party1 -> party2 -> party3, where party1 is revoked.
         """
-        evid1 = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
-        )
+        evid1 = self.service.add_delegation("owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base")
         evid2 = self.service.add_delegation(
             "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base", evidence=evid1
         )
@@ -419,9 +395,7 @@ class DelegationModelTests:
         Test the delegation model with changing paths,
         data_owner -> party1 -> party2 -> party3, where party1 is revoked and data_owner->party2 is added.
         """
-        evid1 = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 100000, "base"
-        )
+        evid1 = self.service.add_delegation("owner1", "party1", ["object1"], ["read"], time.time() + 100000, "base")
         evid2 = self.service.add_delegation(
             "party1", "party2", ["object1"], ["read"], time.time() + 1000000, "base", evidence=evid1
         )
@@ -430,9 +404,7 @@ class DelegationModelTests:
         )
         self.service.revoke_delegation(evid1.identifier, "base")
 
-        new_evid = self.service.add_delegation(
-            "owner1", "party2", ["object1"], ["read"], time.time() + 1000000, "base"
-        )
+        new_evid = self.service.add_delegation("owner1", "party2", ["object1"], ["read"], time.time() + 1000000, "base")
 
         # Test cases
         assert (
@@ -470,8 +442,7 @@ class DelegationModelTests:
 
         # Test cases that should hold true
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read", "other_db", evid2)
-            == True
+            self.service.has_access("party2", "owner1", "object1", "read", "other_db", evid2) == True
         ), "party2 should have read access to object1 in DO->p1->p2 in other_db"
         assert (
             self.service.has_access("party1", "owner1", "object1", "read", "other_db", evid1) == True
@@ -483,8 +454,7 @@ class DelegationModelTests:
         # Test cases that should hold false
         for evid in [evid1, evid2]:
             assert (
-                self.service.has_access("party3", "owner1", "object1", "read", "other_db", evid)
-                == False
+                self.service.has_access("party3", "owner1", "object1", "read", "other_db", evid) == False
             ), "party3 should not have access to object1 in DO->p1 in other_db"
 
     def test_multi_database_first_delegation_revocation(self):
@@ -495,9 +465,7 @@ class DelegationModelTests:
         self.service.db_broker.add_database("other_db", self.service.db_class("other_db"))
         self.service.add_parties(self.PARTIES, "other_db")
 
-        evid1 = self.service.add_delegation(
-            "owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base"
-        )
+        evid1 = self.service.add_delegation("owner1", "party1", ["object1"], ["read"], time.time() + 1000000, "base")
 
         evid2 = self.service.add_delegation(
             "party1",
@@ -513,8 +481,7 @@ class DelegationModelTests:
         self.service.revoke_delegation(evid1.identifier, "base")
 
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read", "other_db", evid2)
-            == False
+            self.service.has_access("party2", "owner1", "object1", "read", "other_db", evid2) == False
         ), "party2 should not have read access to object1 in DO->p1->p2 in other_db"
         assert (
             self.service.has_access("party1", "owner1", "object1", "read", "base", evid1) == False
@@ -531,9 +498,7 @@ class DelegationModelTests:
         self.service.db_broker.add_database("other_db_left", self.service.db_class("other_db_left"))
         self.service.add_parties(OTHER_DB_PARTIES, "other_db_left")
 
-        self.service.db_broker.add_database(
-            "other_db_right", self.service.db_class("other_db_right")
-        )
+        self.service.db_broker.add_database("other_db_right", self.service.db_class("other_db_right"))
         self.service.add_parties(OTHER_DB_PARTIES, "other_db_right")
 
         evid1 = self.service.add_delegation(
@@ -572,12 +537,10 @@ class DelegationModelTests:
 
         # Test cases that should hold true
         assert (
-            self.service.has_access("party2", "owner1", "object1", "read", "other_db_left", evid2)
-            == True
+            self.service.has_access("party2", "owner1", "object1", "read", "other_db_left", evid2) == True
         ), "party2 should have read access to object1 in DO->p1->p2 in other_db_left"
         assert (
-            self.service.has_access("party3", "owner1", "object1", "write", "other_db_right", evid3)
-            == True
+            self.service.has_access("party3", "owner1", "object1", "write", "other_db_right", evid3) == True
         ), "party3 should have write access to object1 in DO->p1->p3 in other_db_right"
         assert (
             self.service.has_access("party4", "owner1", "object1", "read", "base", evid4) == True
@@ -603,9 +566,7 @@ class DelegationModelTests:
         prev_delegation = None
 
         for idx, number_of_delegations in enumerate(numbers_of_delegations):
-            number_to_add = number_of_delegations - (
-                numbers_of_delegations[idx - 1] if idx > 0 else 0
-            )
+            number_to_add = number_of_delegations - (numbers_of_delegations[idx - 1] if idx > 0 else 0)
 
             for _ in range(number_to_add):
                 prev_delegation = self.service.add_delegation(
@@ -656,9 +617,7 @@ class DelegationModelTests:
         number_of_delegations = 250
         last_party_number = 0
 
-        self.service.db_broker.get_database("base").add_parties(
-            [f"party{i}" for i in range(number_of_delegations + 1)]
-        )
+        self.service.db_broker.get_database("base").add_parties([f"party{i}" for i in range(number_of_delegations + 1)])
 
         prev_delegation = None
         delegation_per_party = {"party0": None}  # Store the delegation for each party
@@ -735,9 +694,7 @@ class DelegationModelTests:
         last_party_number = 0
         total_parties = number_of_delegations + number_of_additional_parties
 
-        self.service.db_broker.get_database("base").add_parties(
-            [f"party{i}" for i in range(total_parties + 1)]
-        )
+        self.service.db_broker.get_database("base").add_parties([f"party{i}" for i in range(total_parties + 1)])
 
         prev_delegation = None
         delegation_per_party = {"party0": None}  # Store the delegation for each party

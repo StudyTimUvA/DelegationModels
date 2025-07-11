@@ -3,7 +3,6 @@ from pymacaroons import Macaroon, Verifier
 import uuid
 import copy
 
-# TODO: fix the revocation mechanism
 
 class Evidence:
     def __init__(self, receiver: str, macaroon: Macaroon, delegation_identifier: str = None):
@@ -20,7 +19,7 @@ class Service(service.BaseService):
         object: str,
         action: str,
         db_name: str,
-        evidence: Evidence=None,
+        evidence: Evidence = None,
     ) -> bool:
         """
         Check if a delegatee has access to an object based on the evidence in the database.
@@ -36,19 +35,19 @@ class Service(service.BaseService):
         """
         if not evidence:
             return False
-         
+
         db = self.db_broker.get_database(db_name)
         if not db:
             return False
-        
+
         receiver = evidence.receiver
         evidence = evidence.macaroon
-        
+
         if receiver != delegatee:
             return False
 
         verifier = Verifier()
-        
+
         def check_caveat(x):
             # Check for revocation caveats
             if x.startswith("revocation_id:"):
@@ -68,7 +67,7 @@ class Service(service.BaseService):
 
         # Check that all caveats are satisfied
         verifier.satisfy_general(check_caveat)
-        
+
         db_source = self.db_broker.get_database(evidence.location)
         key = db_source.get_key(evidence.identifier)
 
@@ -77,7 +76,7 @@ class Service(service.BaseService):
             verifier.verify(evidence, key)
         except Exception as e:
             return False
-        
+
         return True
 
     def add_delegation(
@@ -122,10 +121,10 @@ class Service(service.BaseService):
 
         object_string = ",".join(objects)
         action_string = ",".join(actions)
-        evidence.add_first_party_caveat(f'{object_string}:{action_string}')
+        evidence.add_first_party_caveat(f"{object_string}:{action_string}")
 
         delegation_id = str(uuid.uuid4())
-        evidence.add_first_party_caveat(f'revocation_id:{database_key}:{delegation_id}')
+        evidence.add_first_party_caveat(f"revocation_id:{database_key}:{delegation_id}")
 
         return Evidence(receiver=party2, macaroon=evidence, delegation_identifier=delegation_id)
 

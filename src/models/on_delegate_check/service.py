@@ -8,9 +8,7 @@ class OnDelegateCheckService(base_service.BaseService):
     This class provides methods to interact with the OnDelegateCheck model.
     """
 
-    def add_delegation(
-        self, party1, party2, objects, actions, expiry, database_name: str, evidence=None
-    ):
+    def add_delegation(self, party1, party2, objects, actions, expiry, database_name: str, evidence=None):
         rule = base_evidence.Rule(
             object_ids=objects,
             actions=actions,

@@ -25,11 +25,11 @@ class Database(database.Database):
         if identifier not in self.keys:
             raise ValueError(f"Key for identifier '{identifier}' not found.")
         return self.keys[identifier]
-    
+
     def set_key(self, identifier: str, key: str) -> None:
         """
         Set the key for a given identifier.
-        
+
         Params:
             identifier: the identifier for which to set the key.
             key: the key to set for the identifier.

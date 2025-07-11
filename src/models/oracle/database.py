@@ -91,9 +91,7 @@ class Database(BaseDatabase.Database):
                 if edge_data.get("id") in self.revocations:
                     valid_path = False
                     break
-                if resource not in edge_data.get("objects", []) or action not in edge_data.get(
-                    "rights", []
-                ):
+                if resource not in edge_data.get("objects", []) or action not in edge_data.get("rights", []):
                     valid_path = False
                     break
 
@@ -134,9 +132,7 @@ class Database(BaseDatabase.Database):
                 continue
             for bridge in bridges:
                 if bridge.to_node == party_id and resource in bridge.objects and action in bridge.rights:
-                    roots.extend(
-                        self._build_recursive_graph(bridge_source, resource, action, visited)
-                    )
+                    roots.extend(self._build_recursive_graph(bridge_source, resource, action, visited))
 
         if not roots:
             roots.append(party_id)
@@ -186,22 +182,18 @@ class DatabaseBroker(BaseDatabase.DatabaseBroker):
             from_node, to_node, objects, rights=actions, db_name=from_db, evidence=evidence
         )
 
-    def has_access(
-        self, party_id: str, owner_id: str, resource: str, action: str, db_name: str, evidence
-    ) -> bool:
+    def has_access(self, party_id: str, owner_id: str, resource: str, action: str, db_name: str, evidence) -> bool:
         """Check if a party has access to a resource with a specific action."""
         db = self.databases.get(db_name)
         access_or_roots = db.has_access(party_id, owner_id, resource, action)
 
         if access_or_roots is True:
             return True
-        
+
         for root in access_or_roots:
             if root == owner_id:
                 return True
 
-        # TODO: this is a broadcast, and should be removed!
-        # If the direct access check fails, recursively check for access through bridges
         for db in self.databases.values():
             for root in access_or_roots:
                 if db.has_bridges_to(root):
